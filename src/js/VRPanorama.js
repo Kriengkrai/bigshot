@@ -812,7 +812,7 @@ bigshot.VRPanorama.prototype = {
     addRenderable : function (renderable) {
         var rl = new Array ();
         rl.concat (this.renderables);
-        rl.push (listener);
+        rl.push (renderable);
         this.renderables = rl;
     },
     
