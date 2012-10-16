@@ -813,7 +813,7 @@ bigshot.VRPanorama.prototype = {
         data.localY = data.clientY - elementPos.y;
         
         data.ray = this.screenToRay (data.localX, data.localY);
-        
+
         var polar = this.screenToPolar (data.localX, data.localY);
         data.yaw = polar.yaw;
         data.pitch = polar.pitch;
@@ -1215,15 +1215,11 @@ bigshot.VRPanorama.prototype = {
      */
     screenToRay : function (x, y) {
         var dray = this.screenToRayDelta (x, y);
-        var ray = this.renderer.transformToWorld ([dray.x, dray.y, dray.z]);
-        ray = Matrix.RotationY (-this.transformOffsets.y * Math.PI / 180.0).ensure4x4 ().x (ray);
-        ray = Matrix.RotationX (-this.transformOffsets.p * Math.PI / 180.0).ensure4x4 ().x (ray);
-        ray = Matrix.RotationZ (-this.transformOffsets.r * Math.PI / 180.0).ensure4x4 ().x (ray);
-        return {
-            x : ray.e(1),
-            y : ray.e(2),
-            z : ray.e(3)
-        };
+        var ray = this.renderer.transformToWorld (dray);
+        ray = Matrix.RotationY (-this.transformOffsets.y * Math.PI / 180.0).ensure4x4 ().xPoint3Dhom1 (ray);
+        ray = Matrix.RotationX (-this.transformOffsets.p * Math.PI / 180.0).ensure4x4 ().xPoint3Dhom1 (ray);
+        ray = Matrix.RotationZ (-this.transformOffsets.r * Math.PI / 180.0).ensure4x4 ().xPoint3Dhom1 (ray);
+        return ray;
     },
     
     /**
