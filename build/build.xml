@@ -43,6 +43,8 @@
             classpath="${temp}/tool-classes/" 
             deprecation="on"
             debug="on"
+			source="1.6"
+			target="1.6"
             includeantruntime="false">
             <src path="${src}/tools/"/>
         </javac>
@@ -67,6 +69,8 @@
             classpath="${ibuild.temp}/classes/" 
             deprecation="on"
             debug="on"
+			source="1.6"
+			target="1.6"
             includeantruntime="false">
             <src path="${temp}/prepared-source/java/"/>
         </javac>
