@@ -204,7 +204,7 @@
             <arg value="${temp}/vr.bigshot"/>
             <arg value="--preset"/>
             <arg value="dzi-cubemap"/>
-            
+			
             <arg value="--tile-size"/>
             <arg value="510"/>
             <arg value="--face-size"/>
@@ -213,7 +213,7 @@
             <arg value="--format"/>
             <arg value="archive"/>
             
-            <jvmarg value="-Xmx1024M"/>
+            <jvmarg value="-Xmx1200M"/>
         </java>
     </target>
     
@@ -372,6 +372,12 @@ build-image:
 
 build-vr: 
     builds the image pyramid(s) for the vr test page
+
+build-cylinder-vr: 
+    builds the image pyramid(s) for the cylinder vr test page
+
+build-mars-vr: 
+    builds the image pyramid(s) for the Mars vr test page
 
 host: 
     starts the minimal httpd so we can access the test 
