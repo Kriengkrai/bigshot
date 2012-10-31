@@ -42,6 +42,7 @@ public class EquirectangularToCubic extends AbstractSphericalCubicTransform<Equi
         // figure out the horizon
         this.inputHorizon = (int) (h / 2 - cropTop);
         
+        this.horizontalWrap = v >= 360;
         // Transform v to radians
         v = Math.PI * 2 * v / 360.0;
         
