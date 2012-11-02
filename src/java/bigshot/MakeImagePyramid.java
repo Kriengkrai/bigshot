@@ -374,6 +374,8 @@ public class MakeImagePyramid {
                 .size (xformFaceSize, xformFaceSize)
                 .oversampling (parameters.optOversampling (1))
                 .jitter (parameters.optJitter (-1))
+                .topCap (parameters.optTopCap (false))
+                .bottomCap (parameters.optBottomCap (false))
                 .offset (parameters.optYawOffset (0), parameters.optPitchOffset (0), parameters.optRollOffset (0));
             
             if (parameters.containsKey (ImagePyramidParameters.TRANSFORM_PTO)) {

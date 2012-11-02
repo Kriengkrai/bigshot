@@ -237,6 +237,12 @@
             <arg value="--tile-size"/>
             <arg value="510"/>
             
+            <arg value="--top-cap"/>
+            <arg value="true"/>
+            
+            <arg value="--bottom-cap"/>
+            <arg value="true"/>
+            
             <arg value="--format"/>
             <arg value="archive"/>
             
@@ -265,6 +271,12 @@
             
             <arg value="--tile-size"/>
             <arg value="510"/>
+            
+            <arg value="--top-cap"/>
+            <arg value="true"/>
+            
+            <arg value="--bottom-cap"/>
+            <arg value="true"/>
             
             <arg value="--format"/>
             <arg value="archive"/>

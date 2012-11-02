@@ -51,6 +51,12 @@ public class CylindricalToCubic extends AbstractSphericalCubicTransform<Cylindri
     }
     
     @Override
+        protected void invTransformPoint (int x, int y, Point2D output) {
+        output.x = (inputHfov / 2) * (x - input.width () / 2) / (input.width () / 2);
+        output.y = Math.atan (Math.tan (inputVfov / 2) * (y - inputHorizon) / (input.height () / 2));        
+    }
+    
+    @Override
         protected void transformPoint (double theta, double phi, Point2D output) {
         output.x = (theta / (inputHfov / 2)) * (input.width () / 2) + input.width () / 2;
         output.y = Math.tan (phi) / Math.tan (inputVfov / 2) * (input.height () / 2) + inputHorizon;

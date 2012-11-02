@@ -140,6 +140,16 @@ public abstract class AbstractCubicTransform<Derived extends AbstractCubicTransf
     protected double jitter = 0.0;
     
     /**
+     * Set to true to attempt to fill in any missing bottom-section.
+     */
+    protected boolean bottomCap = false;
+    
+    /**
+     * Set to true to attempt to fill in any missing top-section.
+     */
+    protected boolean topCap = false;
+    
+    /**
      * Creates a new transform instance.
      */
     public AbstractCubicTransform () {
@@ -272,6 +282,20 @@ public abstract class AbstractCubicTransform<Derived extends AbstractCubicTransf
      */ 
     public Derived vfov (double vfov) {
         this.vfov = MathUtil.toRad (vfov);
+        @SuppressWarnings("unchecked") 
+            Derived dthis = (Derived) this;
+        return dthis;
+    }
+    
+    public Derived topCap (boolean topCap) {
+        this.topCap = topCap;
+        @SuppressWarnings("unchecked") 
+            Derived dthis = (Derived) this;
+        return dthis;
+    }
+    
+    public Derived bottomCap (boolean bottomCap) {
+        this.bottomCap = bottomCap;
         @SuppressWarnings("unchecked") 
             Derived dthis = (Derived) this;
         return dthis;
