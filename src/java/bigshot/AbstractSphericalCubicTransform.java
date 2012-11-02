@@ -89,6 +89,11 @@ public abstract class AbstractSphericalCubicTransform<Derived extends AbstractCu
         ExecutorService es = Executors.newFixedThreadPool (Runtime.getRuntime ().availableProcessors ());
         List<Callable<Object>> callables = new ArrayList<Callable<Object>> ();
         
+        final Point2D topLinePhi = new Point2D ();
+        invTransformPoint (0, 0, topLinePhi);
+        final Point2D bottomLinePhi = new Point2D ();
+        invTransformPoint (0, input.height () - 1, bottomLinePhi);
+        
         for (int topLine = 0; topLine < height; topLine += STEP) {
             final int startY = topLine;
             final int endY = Math.min (startY + STEP, height);
@@ -143,6 +148,38 @@ public abstract class AbstractSphericalCubicTransform<Derived extends AbstractCu
                                         } else {
                                             input.sampleComponents (inX, inY, sampleBuffer);
                                         }
+                                    } else if (inY < 0 && topCap) {
+                                        double arcWidth = (phi - topLinePhi.y) / ((-Math.PI/2) - topLinePhi.y);
+                                        
+                                        // Here by the singularity we may get some calculations come out with the wrong sign
+                                        // due to numerical imprecision. Just flip it back.
+                                        if (arcWidth < 0) {
+                                            arcWidth = -arcWidth;
+                                        }
+                                        
+                                        if (arcWidth < 0.5) {
+                                            arcWidth /= 2;
+                                        } else {
+                                            arcWidth = (arcWidth * arcWidth);
+                                        }
+                                        
+                                        arcSample (0, arcWidth * input.width (), inX, sampleBuffer);
+                                    } else if (inY >= input.height () && bottomCap) {
+                                        double arcWidth = (phi - bottomLinePhi.y) / ((Math.PI/2) - bottomLinePhi.y);
+                                        
+                                        // Here by the singularity we may get some calculations come out with the wrong sign
+                                        // due to numerical imprecision. Just flip it back.
+                                        if (arcWidth < 0) {
+                                            arcWidth = -arcWidth;
+                                        }
+                                        
+                                        if (arcWidth < 0.5) {
+                                            arcWidth /= 2;
+                                        } else {
+                                            arcWidth = (arcWidth * arcWidth);
+                                        }
+                                        
+                                        arcSample (input.height () - 1, arcWidth * input.width (), inX, sampleBuffer);
                                     } else {
                                         sampleBuffer[0] = 0;
                                         sampleBuffer[1] = 0;
@@ -177,15 +214,49 @@ public abstract class AbstractSphericalCubicTransform<Derived extends AbstractCu
         
         return output;
     }
-
+    
+    protected void arcSample (int y, double arcWidth, double inX, int[] sampleBuffer) {
+        // Should really use two summed area tables here - one for the top line,
+        // one for the bottom line. But nobody is complaining about performance yet.
+        
+        int arcMin = (int) (inX - arcWidth / 2);
+        int arcMax = ((int) (inX + arcWidth / 2)) + 1;
+        
+        int[] asb = new int[3];
+        sampleBuffer[0] = 0;
+        sampleBuffer[1] = 0;
+        sampleBuffer[2] = 0;
+        
+        int c = 0;
+        
+        int step = (arcMax - arcMin) / 256;
+        if (step < 1) {
+            step = 1;
+        }
+        
+        for (int ax = arcMin; ax < arcMax; ax += step) {
+            input.sampleComponents (ax, y, asb);
+            sampleBuffer[0] += asb[0];
+            sampleBuffer[1] += asb[1];
+            sampleBuffer[2] += asb[2];
+            ++c;
+        }
+        
+        sampleBuffer[0] /= c;
+        sampleBuffer[1] /= c;
+        sampleBuffer[2] /= c;
+    }
+    
     /**
-     * Transforms a ray in 3d-space, given by {@code theta} and {@code phi} to 
-     * image map coordinates.
-     *
-     * @param theta the yaw angle of the ray, in radians. Increases clockwise.
-     * @param phi the pitch angle of the ray, in radians. Increases downwards.
-     * @param output the result of the transformation. Gives the image map coordinates
-     * in pixels
-     */
+        * Transforms a ray in 3d-space, given by {@code theta} and {@code phi} to 
+        * image map coordinates.
+        *
+        * @param theta the yaw angle of the ray, in radians. Increases clockwise.
+        * @param phi the pitch angle of the ray, in radians. Increases downwards.
+        * @param output the result of the transformation. Gives the image map coordinates
+        * in pixels
+        */
     protected abstract void transformPoint (double theta, double phi, Point2D output);
+    
+    protected abstract void invTransformPoint (int x, int y, Point2D output);
 }

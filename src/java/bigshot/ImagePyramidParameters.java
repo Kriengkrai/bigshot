@@ -231,4 +231,13 @@ public class ImagePyramidParameters extends TreeMap<String,String> {
         The output image width when using the "face" transform.
         ;
 
+    @BOOLEAN
+        topCap
+        Set to true to attempt to fill in the missing top-section of VR panoramas where the map doesn't go all the way to zenith.
+        ;
+    
+    @BOOLEAN
+        bottomCap
+        Set to true to attempt to fill in the missing bottom-section of VR panoramas where the map doesn't go all the way to nadir.
+        ;
 }
