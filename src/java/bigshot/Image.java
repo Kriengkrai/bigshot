@@ -73,6 +73,12 @@ public class Image {
     private int[] data;
     
     /**
+     * The name of the image, which can be the file name or other
+     * identifying key.
+     */
+    private String name;
+    
+    /**
      * Creates an empty (all-black) image with the given width and height.
      */
     public Image (int width, int height) {
@@ -88,6 +94,22 @@ public class Image {
         this.width = width;
         this.height = height;
         this.data = data;
+    }
+    
+    /**
+     * Sets the name of the image, which can be the file name or other
+     * identifying key.
+     */
+    public void setName (String name) {
+        this.name = name;
+    }
+    
+    /**
+     * Gets the name of the image, which can be the file name or other
+     * identifying key.
+     */
+    public String getName () {
+        return this.name;
     }
     
     /**

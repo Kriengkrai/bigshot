@@ -77,6 +77,16 @@ public class ImagePyramidParameters extends TreeMap<String,String> {
         ;
     
     @INTEGER
+        inputWidth
+        Width of the source image. Set internally by the application.
+        ;
+    
+    @INTEGER
+        inputHeight
+        Height of the source image. Set internally by the application.
+        ;
+    
+    @INTEGER
         posterSize
         Size of the low-resolution preview image along the longest image dimension (width or height).
         ;

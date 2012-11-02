@@ -21,8 +21,11 @@ import java.awt.image.RenderedImage;
 import java.awt.Color;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
+import javax.imageio.ImageReader;
 import javax.imageio.IIOImage;
 import javax.imageio.stream.FileImageOutputStream;
+import javax.imageio.stream.FileImageInputStream;
+import javax.imageio.stream.ImageInputStream;
 import javax.imageio.ImageWriteParam;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -35,6 +38,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.concurrent.Future;
 
 /**
  * Command-line tool to creates the tiled image pyramids that are used by Bigshot.
@@ -213,7 +218,7 @@ public class MakeImagePyramid {
                 int w = Math.min (x + tileWidth, full.getWidth ()) - x;
                 int h = Math.min (y + tileWidth, full.getHeight ()) - y;
                 
-                System.out.println ("Generating tile " + tx + "," + ty + " = [" + x + "," + y + "] + [" + w + "," + h + "] -> [" + (x + w) + "," + (y + h) + "]...");
+                // System.out.println ("Generating tile " + tx + "," + ty + " = [" + x + "," + y + "] + [" + w + "," + h + "] -> [" + (x + w) + "," + (y + h) + "]...");
                 
                 BufferedImage section = full.getSubimage (x, y, w, h);
                 Graphics2D g = tile.createGraphics ();
@@ -253,11 +258,21 @@ public class MakeImagePyramid {
     private static void presetDziCubemap (ImagePyramidParameters parameters) throws Exception {
         int overlap = parameters.optOverlap (2);
         int tileSize = parameters.optTileSize (256 - overlap);
-        int faceSize = parameters.optFaceSize (8 * tileSize);
+        
+        int optimalImageSize = parameters.inputWidth () / 4;
+        int optimalFaceSize = tileSize;
+        while (optimalFaceSize < (optimalImageSize * 1.2) / 2) {
+            optimalFaceSize <<= 1;
+        }
+        
+        int faceSize = parameters.optFaceSize (optimalFaceSize);
+        
+        System.out.println ("Using face size " + faceSize + " optimal is " + optimalImageSize);
         
         if (!isPowerOfTwo (tileSize + overlap)) {
             System.err.println ("WARNING: Resulting image tile size (tile-size + overlap) is not a power of two:" + (tileSize + overlap));
         }
+        
         if ((faceSize % tileSize) != 0) {
             System.err.println ("WARNING: face-size is not an even multiple of tile-size:" + faceSize + " % " + tileSize + " != 0");
         }
@@ -272,6 +287,32 @@ public class MakeImagePyramid {
         parameters.putIfEmpty (ImagePyramidParameters.DESCRIPTOR_FORMAT, ImagePyramidParameters.DescriptorFormat.DZI.toString ());
         parameters.putIfEmpty (ImagePyramidParameters.FOLDER_LAYOUT, ImagePyramidParameters.FolderLayout.DZI.toString ());
         parameters.putIfEmpty (ImagePyramidParameters.LEVEL_NUMBERING, ImagePyramidParameters.LevelNumbering.INVERT.toString ());
+    }
+    
+    private static void setInputImageParameters (ImagePyramidParameters parameters, File input) throws Exception {
+        String path = input.getPath ();
+        
+        String suffix = path.substring (path.lastIndexOf ('.') + 1);
+        for (Iterator<ImageReader> iter = ImageIO.getImageReadersBySuffix (suffix);
+            iter.hasNext ();
+            ) {
+            
+            ImageReader reader = iter.next ();
+            try {
+                ImageInputStream stream = new FileImageInputStream(new File(path));
+                reader.setInput(stream);
+                int width = reader.getWidth (reader.getMinIndex ());
+                int height = reader.getHeight (reader.getMinIndex ());
+                
+                parameters
+                    .inputWidth (width)
+                    .inputHeight (height);
+                return;
+            } finally {
+                reader.dispose();
+            }
+        }
+        throw new Exception ("Unable to get input image size.");
     }
     
     /**
@@ -311,6 +352,8 @@ public class MakeImagePyramid {
      * @param outputBase the output base directory (for folder output) or bigshot archive file (for archive output)
      */
     public static void process (File input, File outputBase, ImagePyramidParameters parameters) throws Exception {
+        setInputImageParameters (parameters, input);
+        
         if (parameters.preset () == ImagePyramidParameters.Preset.DZI_CUBEMAP) {
             presetDziCubemap (parameters);
         }
@@ -319,64 +362,58 @@ public class MakeImagePyramid {
             parameters.transform () == ImagePyramidParameters.Transform.CYLINDER_FACEMAP) {
             boolean archive = parameters.format () == ImagePyramidParameters.Format.ARCHIVE;
             
-            File facesOut = File.createTempFile ("makeimagepyramid", "bigshot");
-            facesOut.delete ();
-            facesOut.mkdirs ();
-            try {
-                File[] faces = null;
-                AbstractCubicTransform xform = null;
-                if (parameters.transform () == ImagePyramidParameters.Transform.CYLINDER_FACEMAP) {
-                    xform = new CylindricalToCubic ();
-                } else {
-                    xform = new EquirectangularToCubic ();
-                }
-                int xformFaceSize = parameters.optFaceSize (2048) + parameters.optOverlap (0);
-                xform.input (input)
-                    .vfov (90)
-                    .size (xformFaceSize, xformFaceSize)
-                    .offset (parameters.optYawOffset (0), parameters.optPitchOffset (0), parameters.optRollOffset (0));
+            AbstractCubicTransform<? extends AbstractCubicTransform> xform = null;
+            if (parameters.transform () == ImagePyramidParameters.Transform.CYLINDER_FACEMAP) {
+                xform = new CylindricalToCubic ();
+            } else {
+                xform = new EquirectangularToCubic ();
+            }
+            int xformFaceSize = parameters.optFaceSize (2048) + parameters.optOverlap (0);
+            xform.input (input)
+                .vfov (90)
+                .size (xformFaceSize, xformFaceSize)
+                .oversampling (parameters.optOversampling (1))
+                .jitter (parameters.optJitter (-1))
+                .offset (parameters.optYawOffset (0), parameters.optPitchOffset (0), parameters.optRollOffset (0));
+            
+            if (parameters.containsKey (ImagePyramidParameters.TRANSFORM_PTO)) {
+                xform.fromHuginPto (new File (parameters.transformPto ()));
+            }
+            if (parameters.containsKey (ImagePyramidParameters.INPUT_VFOV)) {
+                xform.inputVfov (parameters.inputVfov ());
+            }
+            if (parameters.containsKey (ImagePyramidParameters.INPUT_HFOV)) {
+                xform.inputHfov (parameters.inputHfov ());
+            }
+            if (parameters.containsKey (ImagePyramidParameters.INPUT_HORIZON)) {
+                xform.inputHorizon (parameters.inputHorizon ());
+            }
+            
+            System.out.println (String.format (Locale.US, "Input FOV: %.2f x %.2f degrees", xform.inputHfov (), xform.inputVfov ()));
+            
+            parameters.remove (ImagePyramidParameters.FORMAT);
+            parameters.remove (ImagePyramidParameters.FOLDER_LAYOUT);
+            
+            File pyramidBase = outputBase;
+            if (archive) {
+                pyramidBase = File.createTempFile ("makeimagepyramid", "bigshot");
+                pyramidBase.delete ();
+                pyramidBase.mkdirs ();
+            }
+            
+            for (Future<Image> face : xform.transformToFaces ()) {
+                Image img = face.get ();
+                System.out.println ("Making pyramid for " + img.getName ());
+                File out = new File (pyramidBase, img.getName ());
+                BufferedImage buffered = img.toBuffered ();
+                img = null;
                 
-                if (parameters.containsKey (ImagePyramidParameters.TRANSFORM_PTO)) {
-                    xform.fromHuginPto (new File (parameters.transformPto ()));
-                }
-                if (parameters.containsKey (ImagePyramidParameters.INPUT_VFOV)) {
-                    xform.inputVfov (parameters.inputVfov ());
-                }
-                if (parameters.containsKey (ImagePyramidParameters.INPUT_HFOV)) {
-                    xform.inputHfov (parameters.inputHfov ());
-                }
-                if (parameters.containsKey (ImagePyramidParameters.INPUT_HORIZON)) {
-                    xform.inputHorizon (parameters.inputHorizon ());
-                }
-                
-                System.out.println (String.format (Locale.US, "Input FOV: %.2f x %.2f degrees", xform.inputHfov (), xform.inputVfov ()));
-                
-                faces = xform.transformToFaces (facesOut);
-                
-                parameters.remove (ImagePyramidParameters.FORMAT);
-                parameters.remove (ImagePyramidParameters.FOLDER_LAYOUT);
-                
-                File pyramidBase = outputBase;
-                if (archive) {
-                    pyramidBase = File.createTempFile ("makeimagepyramid", "bigshot");
-                    pyramidBase.delete ();
-                    pyramidBase.mkdirs ();
-                }
-                
-                for (File face : faces) {
-                    System.out.println ("Making pyramid for " + face.getName ());
-                    String noExt = face.getName ().substring (0, face.getName ().lastIndexOf ('.'));
-                    File out = new File (pyramidBase, noExt);
-                    makePyramid (face, out, parameters);
-                    face.delete ();
-                }
-                
-                if (archive) {
-                    pack (pyramidBase, outputBase);
-                    deleteAll (pyramidBase);
-                }
-            } finally {
-                deleteAll (facesOut);
+                makePyramid (buffered, out, parameters);
+            }
+            
+            if (archive) {
+                pack (pyramidBase, outputBase);
+                deleteAll (pyramidBase);
             }
         } else if (parameters.transform () == ImagePyramidParameters.Transform.FACE) {
             double fov = parameters.optFov (60);
@@ -496,7 +533,10 @@ public class MakeImagePyramid {
     
     private static void makePyramid (File input, File outputBase, ImagePyramidParameters parameters) throws Exception {
         BufferedImage full = ImageIO.read (input);
-        
+        makePyramid (full, outputBase, parameters);
+    }   
+    
+    private static void makePyramid (BufferedImage full, File outputBase, ImagePyramidParameters parameters) throws Exception {
         boolean outputPackage = parameters.format () == ImagePyramidParameters.Format.ARCHIVE;
         boolean dziLayout = parameters.folderLayout () == ImagePyramidParameters.FolderLayout.DZI;
         
@@ -599,7 +639,7 @@ public class MakeImagePyramid {
             h = (h - overlap) / 2 + overlap;
             
             if (zoom < maxZoom - 1) {
-                System.out.println ("Reducing by factor of 2...");
+                //System.out.println ("Reducing by factor of 2...");
                 
                 BufferedImage reduced = new BufferedImage (w, h, BufferedImage.TYPE_INT_RGB);
                 Graphics2D g = reduced.createGraphics ();
