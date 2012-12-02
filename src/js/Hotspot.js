@@ -31,7 +31,7 @@
  */
 bigshot.Hotspot = function (x, y, w, h) {
     var element = document.createElement ("div");
-    element.style.position = "relative";
+    element.style.position = "absolute";
     element.style.overflow = "visible";
     
     this.browser = new bigshot.Browser ();
