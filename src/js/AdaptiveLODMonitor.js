@@ -53,49 +53,49 @@ bigshot.AdaptiveLODMonitor = function (parameters) {
      * @private
      */
     this.currentAdaptiveMagnification = parameters.vrPanorama.getMaxTextureMagnification ();
-     
+    
     /**
      * The number of frames that have been rendered.
      * @type int
      * @private
      */
     this.frames = 0;
-   
+    
     /**
      * The total number of times we have sampled the render time.
      * @type int
      * @private
      */
     this.samples = 0;
-   
+    
     /**
      * The sum of sample times from all samples of render time in milliseconds.
      * @type int
      * @private
      */
     this.renderTimeTotal = 0;
-   
+    
     /**
      * The sum of sample times from the recent sample pass in milliseconds.
      * @type int
      * @private
      */
     this.renderTimeLast = 0;
-   
+    
     /**
      * The number of samples currently done in the recent sample pass.
      * @type int
      * @private
      */
     this.samplesLast = 0;
-     
+    
     /**
      * The start time, in milliseconds, of the last sample.
      * @type int
      * @private
      */
     this.startTime = 0;
-   
+    
     /**
      * The time, in milliseconds, when the panorama was last rendered.
      * @type int
@@ -106,6 +106,13 @@ bigshot.AdaptiveLODMonitor = function (parameters) {
     this.hqRender = false;
     this.hqMode = false;
     this.hqRenderWaiting = false;
+    
+    /**
+     * Flag to enable / disable the monitor.
+     * @type boolean
+     * @private
+     */
+    this.enabled = true;
     
     var that = this;
     this.listenerFunction = function (state, cause, data) {
@@ -131,6 +138,10 @@ bigshot.AdaptiveLODMonitor.prototype = {
         
         this.lowerTime = this.targetTime / (1.0 + this.parameters.tolerance);
         this.upperTime = this.targetTime * (1.0 + this.parameters.tolerance);
+    },
+    
+    setEnabled : function (enabled) {
+        this.enabled = enabled;
     },
     
     averageRenderTimeLast : function () {
@@ -179,8 +190,10 @@ bigshot.AdaptiveLODMonitor.prototype = {
         if (this.lastRender < new Date ().getTime () - this.parameters.hqRenderDelay) {
             this.hqRender = true;
             this.hqMode = true;
-            this.parameters.vrPanorama.setMaxTextureMagnification (this.parameters.hqRenderMag);
-            this.parameters.vrPanorama.render ();
+            if (this.enabled) {
+                this.parameters.vrPanorama.setMaxTextureMagnification (this.parameters.hqRenderMag);
+                this.parameters.vrPanorama.render ();
+            }
             
             this.hqRender = false;
             this.hqRenderWaiting = false;
@@ -193,6 +206,10 @@ bigshot.AdaptiveLODMonitor.prototype = {
     },
     
     listener : function (state, cause, data) {
+        if (!this.enabled) {
+            return;
+        }
+        
         if (this.hqRender) {
             return;
         }
