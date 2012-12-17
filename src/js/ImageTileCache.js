@@ -35,11 +35,11 @@ bigshot.ImageTileCache = function (onLoaded, onCacheInit, parameters) {
      */
     this.fullImage = null;
     parameters.dataLoader.loadImage (parameters.fileSystem.getPosterFilename (), function (tile) {
-        that.fullImage = tile;
-        if (onCacheInit) {
-            onCacheInit ();
-        }
-    });
+            that.fullImage = tile;
+            if (onCacheInit) {
+                onCacheInit ();
+            }
+        });
     
     /**
      * Maximum number of tiles in the cache.
@@ -114,14 +114,14 @@ bigshot.ImageTileCache.prototype = {
         w *= scale;
         if (sx + w >= sourceImage.width) {
             var w0 = w;
-            w = sourceImage.width - sx - 1;
+            w = sourceImage.width - sx;
             dw *= w / w0;
         }
         
         h *= scale;
         if (sy + h >= sourceImage.height) {
             var h0 = h;
-            h = sourceImage.height - sy - 1;
+            h = sourceImage.height - sy;
             dh *= h / h0;
         }
         
@@ -219,12 +219,12 @@ bigshot.ImageTileCache.prototype = {
             var that = this;
             this.requestedImages[key] = true;
             this.parameters.dataLoader.loadImage (this.getImageFilename (tileX, tileY, zoomLevel), function (tile) {
-                delete that.requestedImages[key];
-                that.imageRequests--;
-                tile.isPartial = false;
-                that.cachedImages[key] = tile;
-                that.fireOnLoad ();
-            });            
+                    delete that.requestedImages[key];
+                    that.imageRequests--;
+                    tile.isPartial = false;
+                    that.cachedImages[key] = tile;
+                    that.fireOnLoad ();
+                });            
         }            
     },
     
