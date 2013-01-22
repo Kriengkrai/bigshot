@@ -18,11 +18,13 @@
  * Creates a new data loader.
  *
  * @param {int} [maxRetries=0] the maximum number of times to retry requests
+ * @param {String} [crossOrigin] the CORS crossOrigin parameter to use when loading images
  * @class Data loader using standard browser functions.
  * @augments bigshot.DataLoader
  */
-bigshot.DefaultDataLoader = function (maxRetries) {
+bigshot.DefaultDataLoader = function (maxRetries, crossOrigin) {
     this.maxRetries = maxRetries;
+    this.crossOrigin = crossOrigin;
     
     if (!this.maxRetries) {
         this.maxRetries = 0;
@@ -35,6 +37,9 @@ bigshot.DefaultDataLoader.prototype = {
     loadImage : function (url, onloaded) {
         var tile = document.createElement ("img");
         tile.retries = 0;
+        if (this.crossOrigin != null) {
+            tile.crossOrigin = this.crossOrigin;
+        }
         var that = this;
         this.browser.registerListener (tile, "load", function () {
                 if (onloaded) {
