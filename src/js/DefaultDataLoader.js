@@ -35,6 +35,7 @@ bigshot.DefaultDataLoader.prototype = {
     loadImage : function (url, onloaded) {
         var tile = document.createElement ("img");
         tile.retries = 0;
+        tile.crossOrigin = "";
         var that = this;
         this.browser.registerListener (tile, "load", function () {
                 if (onloaded) {
