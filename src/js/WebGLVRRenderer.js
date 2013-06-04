@@ -36,7 +36,7 @@ bigshot.WebGLVRRenderer = function (container) {
     this.buffers = new bigshot.TimedWeakReference (function () {
             return that.setupBuffers ();
         }, function (buffers) {
-            that.disposeBuffers (buffers);
+            that.disposeBuffers (that.buffers);
         }, 1000);
 }
 
