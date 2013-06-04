@@ -15,6 +15,7 @@
 -->
 <html>
     <head>
+        <meta name="viewport" content="initial-scale=1.0, width=device-width, height=device-height, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
         <title>
             Bigshot Test Page
         </title>
@@ -123,6 +124,10 @@
                 hotspot.getLabel ().className = "label";
                 
                 hotspotLayer.addHotspot (hotspot);
+                
+                var hotspot = new bigshot.PointHotspot (5700, 600, 32, 32, -16, -16, "hotspot-image.png");
+                hotspotLayer.addHotspot (hotspot);
+                
                 jsi.addLayer (hotspotLayer);
                 
                 

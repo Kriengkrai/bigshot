@@ -34,7 +34,6 @@ bigshot.Hotspot = function (x, y, w, h) {
     element.style.position = "absolute";
     element.style.overflow = "visible";
     
-    this.browser = new bigshot.Browser ();
     this.element = element;
     this.x = x;
     this.y = y;
@@ -43,6 +42,9 @@ bigshot.Hotspot = function (x, y, w, h) {
 }
 
 bigshot.Hotspot.prototype = {
+    
+    browser : new bigshot.Browser (),
+    
     /**
      * Lays out the hotspot in the viewport.
      *

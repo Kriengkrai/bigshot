@@ -77,6 +77,7 @@ if (!self["bigshot"]) {
     #include DefaultDataLoader.js
     #include CachingDataLoader.js
     #include Hotspot.js
+    #include PointHotspot.js
     #include Layer.js
     #include LabeledHotspot.js
     #include LinkHotspot.js
