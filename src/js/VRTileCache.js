@@ -34,5 +34,12 @@ bigshot.VRTileCache.prototype = {
      *
      * @type void
      */
-    purge : function () {}
+    purge : function () {},
+    
+    /**
+     * Disposes the cache and all its entries.
+     *
+     * @type void
+     */
+    dispose : function () {}
 }

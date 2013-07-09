@@ -57,5 +57,7 @@ bigshot.WebGLTexturedQuad.prototype = {
         
         webGl.gl.bindBuffer(webGl.gl.ELEMENT_ARRAY_BUFFER, vertexIndexBuffer);
         webGl.gl.drawElements(webGl.gl.TRIANGLES, 6, webGl.gl.UNSIGNED_SHORT, 0);
+        
+        webGl.gl.bindTexture(webGl.gl.TEXTURE_2D, null);
     }
 }
