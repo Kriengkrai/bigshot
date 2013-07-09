@@ -19,24 +19,26 @@
  */
 bigshot.WebGLVRRenderer = function (container) {
     this.container = container;
+    
     this.canvas = document.createElement ("canvas");
     this.canvas.width = 480;
     this.canvas.height = 480;
     this.canvas.style.position = "absolute";
     this.container.appendChild (this.canvas);
+    
     this.webGl = new bigshot.WebGL (this.canvas);
-    this.webGl.initShaders();
+    this.webGl.initShaders ();
     this.webGl.gl.clearColor(0.0, 0.0, 0.0, 1.0);
     this.webGl.gl.blendFunc (this.webGl.gl.ONE, this.webGl.gl.ZERO);
     this.webGl.gl.enable (this.webGl.gl.BLEND);
-    this.webGl.gl.disable(this.webGl.gl.DEPTH_TEST);
-    this.webGl.gl.clearDepth(1.0);
+    this.webGl.gl.disable (this.webGl.gl.DEPTH_TEST);
+    this.webGl.gl.clearDepth (1.0);
     
     var that = this;
     this.buffers = new bigshot.TimedWeakReference (function () {
             return that.setupBuffers ();
-        }, function (buffers) {
-            that.disposeBuffers (that.buffers);
+        }, function (heldObject) {
+            that.disposeBuffers (heldObject);
         }, 1000);
 }
 
@@ -86,6 +88,10 @@ bigshot.WebGLVRRenderer.prototype = {
     
     dispose : function () {
         this.buffers.dispose ();
+        this.container.removeChild (this.canvas);
+        delete this.canvas;
+        this.webGl.dispose ();
+        delete this.webGl;
     },
     
     disposeBuffers : function (buffers) {

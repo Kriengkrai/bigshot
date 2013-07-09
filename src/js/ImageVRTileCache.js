@@ -33,6 +33,10 @@ bigshot.ImageVRTileCache.prototype = {
     
     purge : function () {
         this.imageTileCache.resetUsed ();
+    },
+    
+    dispose : function () {
+        
     }
 }
 

@@ -65,6 +65,7 @@ bigshot.TextureTileCache = function (onLoaded, onCacheInit, parameters, _webGl) 
     this.textureLruMap = new bigshot.LRUMap ();
     this.onLoaded = onLoaded;
     this.browser = new bigshot.Browser ();
+    this.disposed = false;
 }
 
 bigshot.TextureTileCache.prototype = {
@@ -108,6 +109,13 @@ bigshot.TextureTileCache.prototype = {
             return null;
         }
     },
+    
+    setCachedTexture : function (key, newTexture) {
+        if (this.cachedTextures[key] != null) {
+            this.webGl.deleteTexture (this.cachedTextures[key]);
+        }
+        this.cachedTextures[key] = newTexture;
+    },
         
     getTexture : function (tileX, tileY, zoomLevel) {
         var key = this.getImageKey (tileX, tileY, zoomLevel);
@@ -117,13 +125,13 @@ bigshot.TextureTileCache.prototype = {
         if (this.cachedTextures[key]) {
             return this.cachedTextures[key];
         } else if (this.cachedImages[key]) {
-            this.cachedTextures[key] = this.webGl.createImageTextureFromImage (this.cachedImages[key], this.parameters.textureMinFilter, this.parameters.textureMagFilter);
+            this.setCachedTexture (key, this.webGl.createImageTextureFromImage (this.cachedImages[key], this.parameters.textureMinFilter, this.parameters.textureMagFilter));
             return this.cachedTextures[key];
         } else {
             this.requestImage (tileX, tileY, zoomLevel);
             var partial = this.getPartialTexture (tileX, tileY, zoomLevel);
             if (partial) {
-                this.cachedTextures[key] = partial;
+                this.setCachedTexture (key, partial);
             }
             return partial;
         }
@@ -135,11 +143,11 @@ bigshot.TextureTileCache.prototype = {
             this.imageRequests++;
             var that = this;
             this.parameters.dataLoader.loadImage (this.getImageFilename (tileX, tileY, zoomLevel), function (tile) {
-                    if (that.cachedTextures[key]) {
-                        that.webGl.gl.deleteTexture (that.cachedTextures[key]);
+                    if (that.disposed) {
+                        return;
                     }
                     that.cachedImages[key] = tile;
-                    that.cachedTextures[key] = that.webGl.createImageTextureFromImage (tile, that.parameters.textureMinFilter, that.parameters.textureMagFilter);
+                    that.setCachedTexture (key, that.webGl.createImageTextureFromImage (tile, that.parameters.textureMinFilter, that.parameters.textureMagFilter));
                     delete that.requestedImages[key];
                     that.imageRequests--;
                     var now = new Date();
@@ -155,7 +163,7 @@ bigshot.TextureTileCache.prototype = {
     purge : function () {
         var that = this;
         this.purgeCache (this.textureLruMap, this.cachedTextures, this.maxTextureCacheSize, function (leastUsedKey) {
-                that.webGl.gl.deleteTexture (that.cachedTextures[leastUsedKey]);
+                that.webGl.deleteTexture (that.cachedTextures[leastUsedKey]);
             });
         this.purgeCache (this.imageLruMap, this.cachedImages, this.maxImageCacheSize, function (leastUsedKey) {
             });
@@ -183,6 +191,13 @@ bigshot.TextureTileCache.prototype = {
     getImageFilename : function (tileX, tileY, zoomLevel) {
         var f = this.parameters.fileSystem.getImageFilename (tileX, tileY, zoomLevel);
         return f;
+    },
+    
+    dispose : function () {
+        this.disposed = true;
+        for (var k in this.cachedTextures) {
+            this.webGl.deleteTexture (this.cachedTextures[k]);
+        }
     }
 };
 

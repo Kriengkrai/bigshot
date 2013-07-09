@@ -177,8 +177,8 @@ bigshot.WebGL.prototype = {
      * Sets the matrix parameters ("uniforms", since the variables are declared as uniform) in the shaders.
      */
     setMatrixUniforms : function () {
-        this.gl.uniformMatrix4fv(this.shaderProgram.pMatrixUniform, false, new Float32Array(this.pMatrix.matrix().flatten()));
-        this.gl.uniformMatrix4fv(this.shaderProgram.mvMatrixUniform, false, new Float32Array(this.mvMatrix.matrix().flatten()));
+        this.gl.uniformMatrix4fv (this.shaderProgram.pMatrixUniform, false, new Float32Array(this.pMatrix.matrix().flatten()));
+        this.gl.uniformMatrix4fv (this.shaderProgram.mvMatrixUniform, false, new Float32Array(this.mvMatrix.matrix().flatten()));
     },
     
     /**
@@ -221,12 +221,12 @@ bigshot.WebGL.prototype = {
      * @private
      */
     handleImageTextureLoaded : function (that, texture, image, minFilter, magFilter) {
-        that.gl.bindTexture(that.gl.TEXTURE_2D, texture);        
-        that.gl.texImage2D(that.gl.TEXTURE_2D, 0, that.gl.RGBA, that.gl.RGBA, that.gl.UNSIGNED_BYTE, image);
-        that.gl.texParameteri(that.gl.TEXTURE_2D, that.gl.TEXTURE_MAG_FILTER, magFilter ? magFilter : that.gl.NEAREST);
-        that.gl.texParameteri(that.gl.TEXTURE_2D, that.gl.TEXTURE_MIN_FILTER, minFilter ? minFilter : that.gl.NEAREST);
-        that.gl.texParameteri(that.gl.TEXTURE_2D, that.gl.TEXTURE_WRAP_S, that.gl.CLAMP_TO_EDGE);
-        that.gl.texParameteri(that.gl.TEXTURE_2D, that.gl.TEXTURE_WRAP_T, that.gl.CLAMP_TO_EDGE);
+        that.gl.bindTexture (that.gl.TEXTURE_2D, texture);        
+        that.gl.texImage2D (that.gl.TEXTURE_2D, 0, that.gl.RGBA, that.gl.RGBA, that.gl.UNSIGNED_BYTE, image);
+        that.gl.texParameteri (that.gl.TEXTURE_2D, that.gl.TEXTURE_MAG_FILTER, magFilter ? magFilter : that.gl.NEAREST);
+        that.gl.texParameteri (that.gl.TEXTURE_2D, that.gl.TEXTURE_MIN_FILTER, minFilter ? minFilter : that.gl.NEAREST);
+        that.gl.texParameteri (that.gl.TEXTURE_2D, that.gl.TEXTURE_WRAP_S, that.gl.CLAMP_TO_EDGE);
+        that.gl.texParameteri (that.gl.TEXTURE_2D, that.gl.TEXTURE_WRAP_T, that.gl.CLAMP_TO_EDGE);
         if (minFilter == that.gl.NEAREST_MIPMAP_NEAREST
                 || minFilter == that.gl.LINEAR_MIPMAP_NEAREST
                     || minFilter == that.gl.NEAREST_MIPMAP_LINEAR
@@ -234,6 +234,15 @@ bigshot.WebGL.prototype = {
                         that.gl.generateMipmap(that.gl.TEXTURE_2D);
                     }
         
-        that.gl.bindTexture(that.gl.TEXTURE_2D, null);      
+        that.gl.bindTexture (that.gl.TEXTURE_2D, null);
+    },
+    
+    deleteTexture : function (texture) {
+        this.gl.deleteTexture (texture);
+    },
+    
+    dispose : function () {
+        delete this.canvas;
+        delete this.gl;
     }
 };

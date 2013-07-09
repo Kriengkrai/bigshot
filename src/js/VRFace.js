@@ -72,6 +72,10 @@ bigshot.VRFace = function (owner, key, topLeft_, width_, u, v, onLoaded) {
 bigshot.VRFace.prototype = {
     browser : new bigshot.Browser (),
     
+    dispose : function () {
+        this.tileCache.dispose ();
+    },
+    
     /**
      * Utility function to do a multiply-and-add of a 3d point.
      *

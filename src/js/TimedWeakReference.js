@@ -51,8 +51,8 @@
 bigshot.TimedWeakReference = function (create, dispose, interval) {
     this.object = null;
     this.hasObject = false;
-    this.create = create;
-    this.dispose = dispose;
+    this.fnCreate = create;
+    this.fnDispose = dispose;
     this.lastAccess = new Date ().getTime ();
     this.hasTimer = false;
     this.interval = interval;
@@ -73,7 +73,7 @@ bigshot.TimedWeakReference.prototype = {
     get : function () {
         if (!this.hasObject) {
             this.hasObject = true;
-            this.object = this.create ();
+            this.object = this.fnCreate ();
             this.startTimer ();
         }
         this.lastAccess = new Date ().getTime ();
@@ -86,7 +86,7 @@ bigshot.TimedWeakReference.prototype = {
     clear : function () {
         if (this.hasObject) {
             this.hasObject = false;
-            this.dispose (this.object);
+            this.fnDispose (this.object);
             this.object = null;
             this.stopTimer ();
         }

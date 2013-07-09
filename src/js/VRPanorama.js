@@ -184,6 +184,7 @@ bigshot.VRPanorama = function (parameters) {
     this.dragStart = null;
     this.dragDistance = 0;
     this.hotspots = [];
+    this.disposed = false;
     
     this.transformOffsets = {
         y : parameters.yawOffset,
@@ -790,8 +791,14 @@ bigshot.VRPanorama.prototype = {
      * @public
      */
     dispose : function () {
+        this.disposed = true;
         this.browser.unregisterListener (window, "resize", this.onresizeHandler, false);
         this.browser.unregisterListener (document.body, "orientationchange", this.onresizeHandler, false);
+        this.removeEventListeners ();
+        
+        for (var i = 0; i < this.vrFaces.length; ++i) {
+            this.vrFaces[i].dispose ();
+        }
         this.renderer.dispose ();
     },
     
@@ -813,7 +820,7 @@ bigshot.VRPanorama.prototype = {
         data.localY = data.clientY - elementPos.y;
         
         data.ray = this.screenToRay (data.localX, data.localY);
-
+        
         var polar = this.screenToPolar (data.localX, data.localY);
         data.yaw = polar.yaw;
         data.pitch = polar.pitch;
@@ -938,25 +945,27 @@ bigshot.VRPanorama.prototype = {
      * @param [data] parameter for the {@link bigshot.VRPanorama.RenderListener}s.
      */
     render : function (cause, data) {
-        this.beginRender (cause, data);
-        
-        var scene = this.renderer.createTexturedQuadScene ();
-        
-        for (var f in this.vrFaces) {
-            this.vrFaces[f].render (scene);
+        if (!this.disposed) {
+            this.beginRender (cause, data);
+            
+            var scene = this.renderer.createTexturedQuadScene ();
+            
+            for (var f in this.vrFaces) {
+                this.vrFaces[f].render (scene);
+            }
+            
+            for (var i = 0; i < this.renderables.length; ++i) {
+                this.renderables[i](this.renderer, scene);
+            }
+            
+            scene.render ();
+            
+            for (var i = 0; i < this.hotspots.length; ++i) {
+                this.hotspots[i].layout ();
+            }
+            
+            this.endRender (cause, data);
         }
-        
-        for (var i = 0; i < this.renderables.length; ++i) {
-            this.renderables[i](this.renderer, scene);
-        }
-        
-        scene.render ();
-        
-        for (var i = 0; i < this.hotspots.length; ++i) {
-            this.hotspots[i].layout ();
-        }
-        
-        this.endRender (cause, data);
     },
     
     /**
@@ -966,7 +975,7 @@ bigshot.VRPanorama.prototype = {
      * @param [data] parameter for the {@link bigshot.VRPanorama.RenderListener}s.
      */
     renderUpdated : function (cause, data) {
-        if (this.renderer.supportsUpdate ()) {
+        if (!this.disposed && this.renderer.supportsUpdate ()) {
             this.beginRender (cause, data);
             
             var scene = this.renderer.createTexturedQuadScene ();
@@ -1034,6 +1043,15 @@ bigshot.VRPanorama.prototype = {
     },
     
     dragMouseUp : function (e) {
+        // In case we got a mouse up with out a previous mouse down,
+        // for example, double-click on title bar to maximize the 
+        // window
+        if (this.dragStart == null || this.dragLast == null) {
+            this.dragStart = null;
+            this.dragLast = null;
+            return;
+        }
+        
         this.dragStart = null;
         var dx = this.dragLast.dx;
         var dy = this.dragLast.dy;
@@ -1666,7 +1684,7 @@ bigshot.VRPanorama.prototype = {
      * can't be done in the current call context.
      */
     renderAsap : function () {
-        if (!this.renderAsapPermitTaken) {
+        if (!this.renderAsapPermitTaken && !this.disposed) {
             this.renderAsapPermitTaken = true;
             var that = this;
             this.browser.requestAnimationFrame (function () {
