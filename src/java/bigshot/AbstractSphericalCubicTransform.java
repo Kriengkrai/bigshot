@@ -238,7 +238,6 @@ public abstract class AbstractSphericalCubicTransform<Derived extends AbstractCu
         
         WorkSet.pfor (0, input.height (), new ParallelFor<Void> () {
                 public Void call (int a, int b) {
-                    System.out.println (a + " -> " + b + " / " + input.height ());
                     int[] sba = new int[4];
                     int[] sbb = new int[3];
                     
@@ -252,8 +251,8 @@ public abstract class AbstractSphericalCubicTransform<Derived extends AbstractCu
                             double phi = rayAngle.y;
                             ray.y = Math.sin (phi);
                             double cosphi = Math.cos (phi);
-                            ray.x = Math.cos (theta) * cosphi;
-                            ray.z = Math.sin (theta) * cosphi;
+                            ray.x = Math.cos (Math.PI / 2 - theta) * cosphi;
+                            ray.z = Math.sin (Math.PI / 2 - theta) * cosphi;
                             double denom = ray.dot (planeNormal);
                             
                             if (denom < 0.000001) {
