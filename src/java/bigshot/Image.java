@@ -38,6 +38,11 @@ public class Image {
     private final static int COMPONENT_SIZE = 10;
     
     /**
+     * The maximum value a component can have.
+     */
+    public final static int COMPONENT_MAX_VALUE = ((1 << COMPONENT_SIZE) - 1);
+    
+    /**
      * Bitmask to extract the rightmost component from a 32-bit int.
      */
     private final static int COMPONENT_MASK = ((1 << COMPONENT_SIZE) - 1);
@@ -73,6 +78,11 @@ public class Image {
     private int[] data;
     
     /**
+     * Image alpha channel (optional, is null if image has no alpha).
+     */
+    private byte[] alpha;
+    
+    /**
      * The name of the image, which can be the file name or other
      * identifying key.
      */
@@ -94,6 +104,16 @@ public class Image {
         this.width = width;
         this.height = height;
         this.data = data;
+    }
+    
+    /**
+     * Creates an image with the given data.
+     */
+    public Image (int width, int height, int[] data, byte[] alpha) {
+        this.width = width;
+        this.height = height;
+        this.data = data;
+        this.alpha = alpha;
     }
     
     /**
@@ -173,6 +193,49 @@ public class Image {
     }
     
     /**
+     * Gets the alpha  pixel color value for a given pixel.
+     *
+     * @param x the x-coordinate of the pixel
+     * @param y the y-coordinate of the pixel
+     * @return 10-bit alpha
+     */
+    public int alphaValue (int x, int y) {
+        x %= width;
+        if (x < 0) {
+            x += width;
+        }
+        if (y >= height) {
+            y = height - 1;
+        }
+        if (y < 0) {
+            y = 0;
+        }
+        return (((int) alpha[y * width + x]) & 0xff) << 2;
+    }
+    
+    /**
+     * Samples a linearly interpolated channel value.
+     *
+     * @param x the x-coordinate to sample
+     * @param y the y-coordinate to sample
+     * @param shift the bitshift of the component
+     * @return the component value at {@code x, y}
+     */
+    protected int sampleAlpha (double x, double y) {
+        int x0 = (int) x;
+        int y0 = (int) y;
+        double xf = x - x0;
+        double yf = y - y0;
+        
+        double out = lerp (
+            lerp (alphaValue (x0, y0),     alphaValue (x0 + 1, y0), xf),
+            lerp (alphaValue (x0, y0 + 1), alphaValue (x0 + 1, y0 + 1), xf),
+            yf);
+        
+        return (int) out;
+    }
+    
+    /**
      * Helper function to linerarly interpolate between two values over
      * the interval [0, 1].
      *
@@ -218,6 +281,13 @@ public class Image {
         result[0] = sample (x, y, RED);
         result[1] = sample (x, y, GREEN);
         result[2] = sample (x, y, BLUE);
+        if (result.length > 3) {
+            if (alpha != null) {
+                result[3] = sampleAlpha (x, y);
+            } else {
+                result[3] = 1023;
+            }
+        }
     }
     
     /**
@@ -339,9 +409,16 @@ public class Image {
     }
     
     /**
-     * Reads an image from a file using java ImageIO.
+     * Reads an image without alpha from a file using java ImageIO.
      */
     public static Image read (File file) throws Exception {
+        return read (file, false);
+    }
+    
+    /**
+     * Reads an image from a file using java ImageIO.
+     */
+    public static Image read (File file, boolean withAlpha) throws Exception {
         BufferedImage input = null;
         InputStream is = new BufferedInputStream (new FileInputStream (file), 2048*1024);
         try {
@@ -349,27 +426,39 @@ public class Image {
         } finally {
             is.close ();
         }
-        return fromBuffered (input);
+        return fromBuffered (input, withAlpha);
     }
         
+    /**
+     * Creates an image without alpha channel from a {@link BufferedImage}, which is assumed to be
+     * of type {@link BufferedImage#TYPE_INT_RGB} or {@link BufferedImage#TYPE_INT_ARGB}.
+     */
+    public static Image fromBuffered (BufferedImage input) throws Exception {  
+        return fromBuffered (input, false);
+    }
+    
     /**
      * Creates an image from a {@link BufferedImage}, which is assumed to be
      * of type {@link BufferedImage#TYPE_INT_RGB} or {@link BufferedImage#TYPE_INT_ARGB}.
      */
-    public static Image fromBuffered (BufferedImage input) throws Exception {        
+    public static Image fromBuffered (BufferedImage input, boolean withAlpha) throws Exception {
         int width = input.getWidth ();
         int height = input.getHeight ();
         
         int[] data = new int[width * height];
+        byte[] alpha = withAlpha ? new byte[width * height] : null;
         final int[] line = new int[width];
         for (int y = 0; y < height; ++y) {
             input.getRGB (0, y, width, 1, line, 0, width);
             int wp = y * width;
             for (int x = 0; x < width; ++x) {
                 data[wp] = unpack (line[x]);
+                if (withAlpha) {
+                    alpha[wp] = (byte) ((line[x] >>> 24) & 0xff);
+                }
                 ++wp;
             }
         }
-        return new Image (width, height, data);
+        return new Image (width, height, data, alpha);
     }
 }
