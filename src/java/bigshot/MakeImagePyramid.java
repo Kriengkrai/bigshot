@@ -381,19 +381,7 @@ public class MakeImagePyramid {
                 xform = new EquirectangularToCubic ();
             }
             int xformFaceSize = parameters.optFaceSize (2048) + parameters.optOverlap (0);
-            xform.input (input);
-            
-            for (ImageInsert ii : inserts) {
-                ii.apply (xform);
-            }
-            
-            xform
-                .vfov (90)
-                .size (xformFaceSize, xformFaceSize)
-                .oversampling (parameters.optOversampling (1))
-                .jitter (parameters.optJitter (-1))
-                .topCap (parameters.optTopCap (false))
-                .bottomCap (parameters.optBottomCap (false))
+            xform.input (input)
                 .offset (parameters.optYawOffset (0), parameters.optPitchOffset (0), parameters.optRollOffset (0));
             
             if (parameters.containsKey (ImagePyramidParameters.TRANSFORM_PTO)) {
@@ -409,7 +397,17 @@ public class MakeImagePyramid {
                 xform.inputHorizon (parameters.inputHorizon ());
             }
             
+            for (ImageInsert ii : inserts) {
+                ii.apply (xform);
+            }
             
+            xform
+                .vfov (90)
+                .size (xformFaceSize, xformFaceSize)
+                .oversampling (parameters.optOversampling (1))
+                .jitter (parameters.optJitter (-1))
+                .topCap (parameters.optTopCap (false))
+                .bottomCap (parameters.optBottomCap (false));
             
             System.out.println (String.format (Locale.US, "Input FOV: %.2f x %.2f degrees", xform.inputHfov (), xform.inputVfov ()));
             
