@@ -452,6 +452,37 @@ public abstract class AbstractCubicTransform<Derived extends AbstractCubicTransf
         return dthis;
     }
     
+    public void insert (Image image) throws Exception {
+        final Point3DTransform transform = new Point3DTransform ();
+        transform.rotateZ (MathUtil.toRad (roll));
+        transform.rotateX (MathUtil.toRad (pitch));
+        transform.rotateY (MathUtil.toRad (yaw));
+        
+        transform.rotateY (MathUtil.toRad (oy));
+        transform.rotateX (MathUtil.toRad (op));
+        transform.rotateZ (MathUtil.toRad (or));
+        
+        final Point3D topLeft = new Point3D (-Math.tan (vfov / 2) * image.width () / image.height (), -Math.tan (vfov / 2), 1.0);
+        final Point3D u = new Point3D (-topLeft.x * 2, 0, 0);
+        final Point3D v = new Point3D (0, -topLeft.y * 2, 0);
+        
+        transform.transform (topLeft);
+        transform.transform (u);
+        transform.transform (v);
+        
+        insert (image, topLeft, u, v);
+    }
+    
+    /**
+     * Inserts an image into a panorama. The panorama is mapped onto the unit sphere.
+     *
+     * @param image the image to insert
+     * @param topLeft the top-left corner of the image
+     * @param u vector going from the top left to the top right corner of the image
+     * @param v vector going from the top left to the bottom left corner of the image
+     */
+    public abstract void insert (Image image, Point3D topLeft, Point3D u, Point3D v) throws Exception;
+    
     /**
      * Performs the transformation.
      */

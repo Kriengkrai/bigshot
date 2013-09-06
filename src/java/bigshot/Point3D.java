@@ -124,11 +124,30 @@ public class Point3D extends Point2D {
         y /= (z / f);
     }
     
+    public double dot (Point3D other) {
+        return this.x * other.x + this.y * other.y + this.z * other.z;
+    }
+    
+    public Point3D cross (Point3D other) {
+        return new Point3D (
+            this.y * other.z - this.z * other.y,
+            this.z * other.x - this.x * other.z,
+            this.x * other.y - this.y * other.x
+            );
+    }
+    
     /**
      * The euclidean distance of the point to the origin.
      */
     public double norm () {
         return Math.sqrt (x * x + y * y + z * z);
+    }
+    
+    /**
+     * The square of the euclidean distance of the point to the origin.
+     */
+    public double norm2 () {
+        return x * x + y * y + z * z;
     }
     
     /**

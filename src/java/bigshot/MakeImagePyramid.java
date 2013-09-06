@@ -33,6 +33,7 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.Map;
 import java.util.List;
 import java.util.Locale;
@@ -333,15 +334,22 @@ public class MakeImagePyramid {
             File input = new File (args[0]);
             File outputBase = new File (args[1]);
             Map<String,String> parameters = new HashMap<String,String> ();
+            List<ImageInsert> inserts = new ArrayList<ImageInsert> ();
             for (int i = 2; i < args.length; i += 2) {
                 if (args[i].startsWith ("--")) {
                     String key = args[i].substring (2);
                     String value = args[i + 1];
-                    parameters.put (key, value);
+                    if (key.equals ("insert")) {
+                        inserts.add (ImageInsert.parseAngles (value));
+                    } else if (key.equals ("insert-vec")) {
+                        inserts.add (ImageInsert.parseVectors (value));
+                    } else {
+                        parameters.put (key, value);
+                    }
                 }
             }
             
-            process (input, outputBase, new ImagePyramidParameters (parameters));
+            process (input, outputBase, new ImagePyramidParameters (parameters), inserts);
         }
     }
     
@@ -352,6 +360,10 @@ public class MakeImagePyramid {
      * @param outputBase the output base directory (for folder output) or bigshot archive file (for archive output)
      */
     public static void process (File input, File outputBase, ImagePyramidParameters parameters) throws Exception {
+        process (input, outputBase, parameters, null);
+    }
+    
+    public static void process (File input, File outputBase, ImagePyramidParameters parameters, Collection<ImageInsert> inserts) throws Exception {
         setInputImageParameters (parameters, input);
         
         if (parameters.preset () == ImagePyramidParameters.Preset.DZI_CUBEMAP) {
@@ -369,7 +381,13 @@ public class MakeImagePyramid {
                 xform = new EquirectangularToCubic ();
             }
             int xformFaceSize = parameters.optFaceSize (2048) + parameters.optOverlap (0);
-            xform.input (input)
+            xform.input (input);
+            
+            for (ImageInsert ii : inserts) {
+                ii.apply (xform);
+            }
+            
+            xform
                 .vfov (90)
                 .size (xformFaceSize, xformFaceSize)
                 .oversampling (parameters.optOversampling (1))
@@ -390,6 +408,8 @@ public class MakeImagePyramid {
             if (parameters.containsKey (ImagePyramidParameters.INPUT_HORIZON)) {
                 xform.inputHorizon (parameters.inputHorizon ());
             }
+            
+            
             
             System.out.println (String.format (Locale.US, "Input FOV: %.2f x %.2f degrees", xform.inputHfov (), xform.inputVfov ()));
             
