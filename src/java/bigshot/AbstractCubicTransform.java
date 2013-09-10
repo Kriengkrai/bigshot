@@ -188,6 +188,13 @@ public abstract class AbstractCubicTransform<Derived extends AbstractCubicTransf
     }
     
     /**
+     * Gets the current input panorama image.
+     */
+    public Image input () {
+        return this.input;
+    }
+    
+    /**
      * Loads projection parameters from a Hugin {@code .pto} file.
      * Subclasses should override the {@link #fromHuginPtoParameters} method
      * to actually set the projection parameters.
