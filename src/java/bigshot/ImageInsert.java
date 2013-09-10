@@ -15,6 +15,7 @@ public class ImageInsert {
     private Point3D v;
     
     private File imageFile;
+    private Image image;
     
     public ImageInsert () {
     }
@@ -57,6 +58,11 @@ public class ImageInsert {
     
     public ImageInsert imageFile (File imageFile) {
         this.imageFile = imageFile;
+        return this;
+    }
+    
+    public ImageInsert image (Image image) {
+        this.image = image;
         return this;
     }
     
@@ -124,7 +130,10 @@ public class ImageInsert {
     }
     
     public void apply (AbstractCubicTransform xform) throws Exception {
-        Image insertImg = Image.read (imageFile, true);
+        Image insertImg = image;
+        if (insertImg == null) {
+            insertImg = Image.read (imageFile, true);
+        }
         if (topLeft == null) {
             xform.view (yaw (), pitch (), roll ());
             xform.vfov (vfov ());
