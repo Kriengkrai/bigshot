@@ -397,8 +397,10 @@ public class MakeImagePyramid {
                 xform.inputHorizon (parameters.inputHorizon ());
             }
             
-            for (ImageInsert ii : inserts) {
-                ii.apply (xform);
+            if (inserts != null) {
+                for (ImageInsert ii : inserts) {
+                    ii.apply (xform);
+                }
             }
             
             xform
