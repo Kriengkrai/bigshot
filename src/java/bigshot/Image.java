@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.ImageReader;
@@ -141,9 +142,9 @@ public class Image {
      */
     public void componentValue (int x, int y, int[] result) {
         int v = value(x, y);
-        result[0] = (v >> RED) & COMPONENT_MASK;
+        result[0] = (v >> RED  ) & COMPONENT_MASK;
         result[1] = (v >> GREEN) & COMPONENT_MASK;
-        result[2] = (v >> BLUE) & COMPONENT_MASK;
+        result[2] = (v >> BLUE ) & COMPONENT_MASK;
     }
     
     /**
@@ -157,6 +158,17 @@ public class Image {
      */
     public void componentValue (int x, int y, int r, int g, int b) {
         data[y * width + x] = (r << RED) | (g << GREEN) | (b << BLUE);
+    }
+    
+    /**
+     * Sets the alpha value for a given pixel.
+     *
+     * @param x the x-coordinate of the pixel
+     * @param y the y-coordinate of the pixel
+     * @param a the alpha value
+     */
+    public void alphaValue (int x, int y, int a) {
+        alpha[y * width + x] = (byte) ((a >> 2) & 0xff);
     }
     
     /**
@@ -210,16 +222,17 @@ public class Image {
         if (y < 0) {
             y = 0;
         }
-        return (((int) alpha[y * width + x]) & 0xff) << 2;
+        
+        int intAlpha = (((int) alpha[y * width + x]) & 0xff);
+        return (intAlpha << 2) | ((intAlpha >> 6) & 0x03);
     }
     
     /**
-     * Samples a linearly interpolated channel value.
+     * Samples a linearly interpolated alpha value.
      *
      * @param x the x-coordinate to sample
      * @param y the y-coordinate to sample
-     * @param shift the bitshift of the component
-     * @return the component value at {@code x, y}
+     * @return the alpha value at {@code x, y}
      */
     protected int sampleAlpha (double x, double y) {
         int x0 = (int) x;
@@ -285,7 +298,7 @@ public class Image {
             if (alpha != null) {
                 result[3] = sampleAlpha (x, y);
             } else {
-                result[3] = 1023;
+                result[3] = COMPONENT_MAX_VALUE;
             }
         }
     }
@@ -327,6 +340,29 @@ public class Image {
      */
     public int height () {
         return height;
+    }
+    
+    /**
+     * Returns true if this image has an associated alpha channel.
+     */
+    public boolean hasAlpha () {
+        return alpha != null;
+    }
+    
+    /**
+     * Adds an alpha channel to this image and fills it with
+     * the maximum value.
+     */
+    public void addAlpha () {
+        alpha = new byte[width * height];
+        Arrays.fill (alpha, (byte) 0xff);
+    }
+    
+    /**
+     * Removes the alpha channel from this image.
+     */
+    public void removeAlpha () {
+        alpha = null;
     }
     
     /**
