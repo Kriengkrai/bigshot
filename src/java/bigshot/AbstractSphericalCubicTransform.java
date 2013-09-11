@@ -272,7 +272,7 @@ public abstract class AbstractSphericalCubicTransform<Derived extends AbstractCu
                             double imageX = uN * image.width ();
                             double imageY = vN * image.height ();
                             
-                            if (imageX >= 0 && imageX < image.width () && imageY >= 0 && imageY < image.height ()) {
+                            if (imageX >= 0 && imageX <= image.width () - 1 && imageY >= 0 && imageY <= image.height () - 1) {
                                 image.sampleComponents (imageX, imageY, sba);
                                 input.componentValue (x, y, sbb);
                                 for (int i = 0; i < sbb.length; ++i) {
