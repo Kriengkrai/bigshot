@@ -19,7 +19,7 @@
     <property name="src" value="src/"/>
     <property name="doc" value="doc/"/>
     <property name="final" value="final/"/>
-    <property name="version" value="2.0"/>
+    <property name="version" value="2.1"/>
     <property name="package-dir" value="${final}/bigshot"/>
     <property name="site-dir" value="${basedir}/../site/"/>
     
