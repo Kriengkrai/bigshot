@@ -124,10 +124,16 @@ public class Point3D extends Point2D {
         y /= (z / f);
     }
     
+    /**
+     * Computes the dot product of this vector and another.
+     */
     public double dot (Point3D other) {
         return this.x * other.x + this.y * other.y + this.z * other.z;
     }
     
+    /**
+     * Computes the cross product of this vector and another.
+     */
     public Point3D cross (Point3D other) {
         return new Point3D (
             this.y * other.z - this.z * other.y,
