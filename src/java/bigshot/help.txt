@@ -191,6 +191,19 @@ Options:
     --output-height
         The output image width when using the "face" transform.
 
+    --insert yaw,pitch,roll,vfov,imageFile
+        Adds an image insert with center at yaw,pitch and
+        rotation around the view axis of roll degrees. The image
+        has a vertical angle of vfov and is loaded from imageFile.
+
+    --insert-vec topLeft.x,topLeft.y,topLeft.z,
+        u.x,u.y,u.z,v.x,v.y,v.z,imageFile
+
+        Adds an image insert with top left corner (in bubble-space coordinates)
+        at topLeft, with the u vector going along the top edge and the
+        v vector going down the left edge. The image is loaded from
+        imageFile.
+
 Example:
 
     java -jar bigshot.jar big.jpg big.bigshot --format archive
