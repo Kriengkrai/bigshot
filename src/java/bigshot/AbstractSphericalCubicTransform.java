@@ -297,7 +297,7 @@ public abstract class AbstractSphericalCubicTransform<Derived extends AbstractCu
         * @param output the result of the transformation. Gives the image map coordinates
         * in pixels
         */
-    protected abstract void transformPoint (double theta, double phi, Point2D output);
+    public abstract void transformPoint (double theta, double phi, Point2D output);
     
     /**
         * Transforms an image map coordinate to a ray in 3d-space.
@@ -307,5 +307,5 @@ public abstract class AbstractSphericalCubicTransform<Derived extends AbstractCu
         * @param output the result of the transformation. Gives the ray angle in radians
         * as x = theta, y = phi
         */
-    protected abstract void invTransformPoint (int x, int y, Point2D output);
+    public abstract void invTransformPoint (int x, int y, Point2D output);
 }

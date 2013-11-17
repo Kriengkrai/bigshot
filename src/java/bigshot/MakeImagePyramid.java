@@ -323,13 +323,13 @@ public class MakeImagePyramid {
      * may call {@code System.exit()}.
      */
     public static void main (String[] args) throws Exception {
-        if (args.length < 2) {
+        if (args.length == 1 && (args[0].equals ("-h") || args[0].equals ("--help"))) {
+            showHelp ();
+            System.exit (0);
+        } else if (args.length < 2) {
             showHelp ();
             System.err.println ("No input files specified.");
             System.exit (1);
-        } else if (args.length == 1 && (args[0].equals ("-h") || args[0].equals ("--help"))) {
-            showHelp ();
-            System.exit (0);
         } else {
             File input = new File (args[0]);
             File outputBase = new File (args[1]);

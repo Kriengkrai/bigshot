@@ -58,14 +58,14 @@ public class EquirectangularToCubic extends AbstractSphericalCubicTransform<Equi
     }
     
     @Override
-        protected void invTransformPoint (int x, int y, Point2D output) {
+        public void invTransformPoint (int x, int y, Point2D output) {
         output.x = (inputHfov / 2) * (x - input.width () / 2) / (input.width () / 2);
         output.y = (inputVfov / 2) * (y - inputHorizon) / (input.height () / 2);
     }
     
     
     @Override
-        protected void transformPoint (double theta, double phi, Point2D output) {
+        public void transformPoint (double theta, double phi, Point2D output) {
         output.x = (theta / (inputHfov / 2)) * (input.width () / 2) + input.width () / 2;
         output.y = (phi / (inputVfov / 2)) * (input.height () / 2) + inputHorizon;
     }

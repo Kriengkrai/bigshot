@@ -60,6 +60,11 @@
             <arg value="${src}/java/bigshot/ImagePyramidParameters.java"/>
             <arg value="${temp}/prepared-source/java/bigshot/ImagePyramidParameters.java"/>
         </java>
+        <java fork="yes" classpath="${temp}/tool-classes/"
+            dir="${basedir}" classname="bigshot.tools.ParamGen">
+            <arg value="${src}/java/bigshot/PlanetParameters.java"/>
+            <arg value="${temp}/prepared-source/java/bigshot/PlanetParameters.java"/>
+        </java>
     </target>
     
     <target name="build" depends="prepare-source">
@@ -285,6 +290,47 @@
             <arg value="232.137,-9.980,0,45,${basedir}/test/overlay-image.png"/>
             
             <jvmarg value="-Xmx1024M"/>
+        </java>
+    </target>
+    
+    <target name="build-planet">
+        <!--
+        <mkdir dir="${temp}/vr.bigshot"/>
+        <delete includeEmptyDirs="true">
+        <fileset dir="${temp}/vr.bigshot"/>
+        </delete>
+        -->
+        <java fork="yes" classpath="${package-dir}/bigshot.jar"
+            className="bigshot.MakePlanet"
+            dir="${basedir}">
+            <arg value="${basedir}/test/vr-sample.jpg"/>
+            <arg value="${temp}/planet.png"/>
+            
+            <arg value="--output-size"/>
+            <arg value="512"/>
+            
+            <arg value="--ground-inflection"/>
+            <arg value="3"/>
+            
+            <arg value="--sky-inflection"/>
+            <arg value="1.2"/>
+            
+            <arg value="--inflection-in"/>
+            <arg value="0.5"/>
+            
+            <arg value="--inflection-out"/>
+            <arg value="0.5"/>
+            
+            <arg value="--scale"/>
+            <arg value="1.0"/>
+            
+            <arg value="--cover"/>
+            <arg value="false"/>
+            
+            <arg value="--center"/>
+            <arg value="0.5"/>
+            
+            <jvmarg value="-Xmx1224M"/>
         </java>
     </target>
     

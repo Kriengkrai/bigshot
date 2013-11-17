@@ -87,7 +87,7 @@ public class ParamGen {
                     out.println ("     }");
                     
                     out.println ("    /** " + comment + " */");
-                    out.println ("    public ImagePyramidParameters " + toMethod (name) + " (" + name + " " + toMethod (name) + ") {");
+                    out.println ("    public " + className + " " + toMethod (name) + " (" + name + " " + toMethod (name) + ") {");
                     out.println ("        if (" + toMethod (name) + " != null) {");
                     out.println ("            put (" + staticMember + ", " + toMethod (name) + ".toString());");
                     out.println ("        } else {");    

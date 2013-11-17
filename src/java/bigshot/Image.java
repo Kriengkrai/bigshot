@@ -23,10 +23,16 @@ import java.io.OutputStream;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.util.Arrays;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.ImageReader;
+import javax.imageio.ImageWriter;
+import javax.imageio.IIOImage;
+import javax.imageio.stream.FileImageOutputStream;
+import javax.imageio.stream.FileImageInputStream;
+import javax.imageio.ImageWriteParam;
 
 /**
  * A 30-bit (10 per channel) RGB image.
@@ -380,6 +386,31 @@ public class Image {
     }
     
     /**
+     * Writes the image to a JPG file.
+     */
+    public void writeJpeg (File file, float quality) throws Exception {
+        ImageWriter writer = ImageIO.getImageWritersByFormatName ("jpeg").next ();
+        try {
+            ImageWriteParam iwp = writer.getDefaultWriteParam();
+            
+            iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+            iwp.setCompressionQuality ((float) quality);
+            
+            FileImageOutputStream os = new FileImageOutputStream (file);
+            try {
+                writer.setOutput(os);
+                IIOImage iioImage = new IIOImage ((RenderedImage) toBuffered (), null, null);
+                writer.write (null, iioImage, iwp);
+            } finally {
+                os.close ();
+            }
+            
+        } finally {
+            writer.dispose();
+        }
+    }
+    
+    /**
      * Scales all channels by {@code num / denom}.
      *
      * @param y0 the first line to apply the scaling to
@@ -431,12 +462,16 @@ public class Image {
      * {@link BufferedImage#TYPE_INT_RGB}.
      */
     public BufferedImage toBuffered () throws Exception {
-        BufferedImage output = new BufferedImage (width, height, BufferedImage.TYPE_INT_RGB);
+        boolean useAlpha = hasAlpha ();
+        BufferedImage output = new BufferedImage (width, height, useAlpha ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);
         final int[] line = new int[width];
         for (int y = 0; y < height; ++y) {
             int rp = y * width;
             for (int x = 0; x < width; ++x) {
                 line[x] = pack (data[rp]);
+                if (useAlpha) {
+                    line[x] |= (((int) alpha[rp]) & 0xff) << 24;
+                }
                 ++rp;
             }
             output.setRGB (0, y, width, 1, line, 0, width);
@@ -464,7 +499,7 @@ public class Image {
         }
         return fromBuffered (input, withAlpha);
     }
-        
+    
     /**
      * Creates an image without alpha channel from a {@link BufferedImage}, which is assumed to be
      * of type {@link BufferedImage#TYPE_INT_RGB} or {@link BufferedImage#TYPE_INT_ARGB}.
