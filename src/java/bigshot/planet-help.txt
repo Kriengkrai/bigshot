@@ -1,0 +1,120 @@
+bigshot.MakePlanet
+------------------
+
+Usage:
+    java -classpath bigshot.jar bigshot.MakePlanet [--help]
+        Shows help - this page. 
+ 
+    java -classpath bigshot.jar bigshot.MakePlanet _infile_ _out_ [options]
+        Builds a planet PNG file with alpha.
+
+    java -Xmx<memory>M -classpath bigshot.jar \
+        bigshot.MakePlanet _infile_ _out_ [options]
+
+        Builds a planet PNG file with alpha and allocates more memory
+        to the program. Specify the amount of memory, in MB
+        that you want to use. Use this if you run out of
+        Java heap space.
+
+Options:
+
+    --output-size pixels
+        Size of the output image (width and height).
+        Default: 1024
+
+    --transform equirectangular|cylinder
+        Sets the transform to use for the input image. Values
+        are:
+
+        equirectangular
+            Assumes that the input image is an equirectangular
+            map.
+
+        cylinder
+            Assumes that the input image is an cylindrical map
+            map.
+
+        Default: equirectangular
+
+    --image-format format
+        Image format for output. Can be "jpg" or "png".
+        Default: "png"
+            jpg : Create JPEG files.
+            png : Create PNG files.
+        
+    --jpeg-quality quality
+        Jpeg quality, between 0.0 and 1.0. Only has effect
+        if --image-format is "jpg"
+        Default: 0.7
+
+    --yaw-offset deg
+        The initial yaw offset to apply, in degrees.
+        Default: 0
+
+    --pitch-offset deg
+        The initial pitch offset to apply, in degrees.
+        Default: 0
+
+    --roll-offset deg
+        The initial roll offset to apply, in degrees.
+        Default: 0
+
+    --input-horizon pixels
+        The y-coordinate of the horizon in the map image.
+
+    --input-vfov deg
+        The vertical field of view of the map image, in degrees.
+
+    --input-hfov deg
+        The horizontal field of view of the map image, in degrees.
+
+    --transform-pto
+        Sets the input-vfov and input-horizon parameters from a 
+        Hugin .pto file.
+        Note: You must still specify the transform (cylindrical
+        or equirectangular).
+
+    --scale
+        Linear scale to apply. Set to 1.42 to fill the output square.
+        Default: 1.0.
+
+    --center
+        The size of the region in the center where a linear mapping 
+        from phi to output phi is blended with the exponential mapping. 
+        Given as 0.0 - 1.0.
+        Default: 0.5.
+
+    --inflection-in
+        Sets the input phi angle at which the input-phi to output phi
+        curve inflects.
+
+    --inflection-out
+        Sets the output phi angle at which the input-phi to output phi
+        curve inflects.
+
+    --ground-inflection
+        The exponent to use to map phi angles from [0.0 - inflection-in] to
+        [0.0 - inflection-out]
+
+    --sky-inflection
+        The exponent to use to map phi angles from [inflection-in - 1.0] to
+        [inflection-out - 1.0]
+
+    --insert yaw,pitch,roll,vfov,imageFile
+        Adds an image insert with center at yaw,pitch and
+        rotation around the view axis of roll degrees. The image
+        has a vertical angle of vfov and is loaded from imageFile.
+
+    --insert-vec topLeft.x,topLeft.y,topLeft.z,
+        u.x,u.y,u.z,v.x,v.y,v.z,imageFile
+
+        Adds an image insert with top left corner (in bubble-space coordinates)
+        at topLeft, with the u vector going along the top edge and the
+        v vector going down the left edge. The image is loaded from
+        imageFile.
+
+Example:
+
+    java -classpath bigshot.jar bigshot.MakePlanet big.jpg planet.png
+
+    Creates a planet from big.jpg.
