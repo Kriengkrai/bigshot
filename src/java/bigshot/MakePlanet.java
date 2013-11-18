@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.concurrent.Future;
 import java.util.concurrent.Callable;
@@ -104,7 +105,7 @@ public class MakePlanet {
         }
     }
     
-    public static void process (File input, File output, PlanetParameters parameters, Collection<ImageInsert> inserts) throws Exception {
+    public static void process (File inputFile, File outputFile, final PlanetParameters parameters, Collection<ImageInsert> inserts) throws Exception {
         AbstractSphericalCubicTransform<? extends AbstractCubicTransform> txform = null;
         
         if (parameters.transform () == PlanetParameters.Transform.CYLINDER) {
@@ -115,7 +116,7 @@ public class MakePlanet {
         
         final AbstractSphericalCubicTransform<? extends AbstractCubicTransform> xform = txform;
         
-        xform.input (Image.read (input, true))
+        xform.input (Image.read (inputFile, true))
             .offset (parameters.optYawOffset (0), parameters.optPitchOffset (0), parameters.optRollOffset (0));
         
         if (parameters.containsKey (PlanetParameters.TRANSFORM_PTO)) {
@@ -146,43 +147,94 @@ public class MakePlanet {
         final double scale = parameters.optScale (1.0f);
         final double center = parameters.optCenter (0.2f);
         final double maxNorm = parameters.optCover (false) ? 1.42 : 1.0;
+        final double jitter = parameters.optJitter (-1.0f);
+        final int oversampling = parameters.optOversampling (1);
+        final boolean horizontalWrap = xform.horizontalWrap ();
+        final double centerPos = size2 * oversampling;
+        final double yawOffset = parameters.optYawOffset (0) * Math.PI / 180.0;
         
-        final boolean alpha = xform.input ().hasAlpha ();
+        final Image input = xform.input ();
+        final boolean alpha = input.hasAlpha ();
         final Image outputImage = new Image (size, size);
         outputImage.addAlpha ();
         WorkSet.pfor (0, size, new ParallelFor<Void> () {
                 public Void call (int a, int b) {
-                    for (int y = a; y < b; ++y) {
-                        Point2D p2d = new Point2D ();
-                        for (int x = 0; x < size; ++x) {
-                            double dx = (x - size2) / size2;
-                            double dy = (y - size2) / size2;
-                            double theta = Math.atan2 (dy, dx);
-                            
-                            double norm = Math.sqrt (dx * dx + dy * dy) / scale;
-                            
-                            double adjustedNorm = 0.0;
-                            if (norm < inflectionIn) {
-                                adjustedNorm = inflectionOut * Math.pow (norm / inflectionIn, groundInflection);
-                            } else {
-                                adjustedNorm = inflectionOut + (1.0 - inflectionOut) * Math.pow ((norm - inflectionIn) / (maxNorm - inflectionIn), skyInflection);
-                            }
-                            if (adjustedNorm < center) {
-                                double w = adjustedNorm / center;
-                                adjustedNorm = w * adjustedNorm + (1.0 - w) * norm;
-                            }
-                            
-                            double phi = Math.PI / 2 - Math.PI * adjustedNorm;
-                            
-                            xform.transformPoint (theta, phi, p2d);
-                            outputImage.value (x, y, xform.input ().sample (p2d.x, p2d.y));
-                            if (adjustedNorm <= 1.0) {
-                                if (alpha) {
-                                    outputImage.alphaValue (x, y, xform.input ().sampleAlpha (p2d.x, p2d.y));
+                    final int[] oversamplingBuffer = new int[size * 4];
+                    final int[] sampleBuffer = new int[4];
+                    final Point2D p2d = new Point2D ();
+                    
+                    for (int destY = a; destY < b; ++destY) {
+                        Arrays.fill (oversamplingBuffer, 0);
+                        for (int y = destY * oversampling; y < destY * oversampling + oversampling; ++y) {
+                            for (int x = 0; x < size * oversampling; ++x) {
+                                double jx = x;
+                                double jy = y;
+                                if (jitter > 0.0) {
+                                    jx += Math.random () * jitter - jitter / 2;
+                                    jy += Math.random () * jitter - jitter / 2;
                                 }
-                            } else {
-                                outputImage.alphaValue (x, y, 0);
+                                
+                                double dx = (jx - centerPos) / centerPos;
+                                double dy = (jy - centerPos) / centerPos;
+                                double theta = (dx != 0.0 || dy != 0.0) ? Math.atan2 (dy, dx) : 0.0;
+                                theta += yawOffset;
+                                double norm = Math.sqrt (dx * dx + dy * dy) / scale;
+                                
+                                double adjustedNorm = 0.0;
+                                if (norm < inflectionIn) {
+                                    adjustedNorm = inflectionOut * Math.pow (norm / inflectionIn, groundInflection);
+                                } else {
+                                    adjustedNorm = inflectionOut + (1.0 - inflectionOut) * Math.pow ((norm - inflectionIn) / (maxNorm - inflectionIn), skyInflection);
+                                }
+                                if (adjustedNorm < center) {
+                                    double w = adjustedNorm / center;
+                                    adjustedNorm = w * adjustedNorm + (1.0 - w) * norm;
+                                }
+                                
+                                double phi = Math.PI / 2 - Math.PI * adjustedNorm;
+                                
+                                xform.transformPoint (theta, phi, p2d);
+                                
+                                double inX = p2d.x;
+                                double inY = p2d.y;
+                                
+                                if (inY >= 0 && inY < input.height () + 1 && (horizontalWrap || (inX >= 0 && inX < input.width ()))) {
+                                    if (inY >= input.height () - 1 || (!horizontalWrap && inX >= input.width () - 1)) {
+                                        input.componentValue ((int) inX, (int) inY, sampleBuffer);
+                                    } else {
+                                        input.sampleComponents (inX, inY, sampleBuffer);
+                                    }
+                                } else {
+                                    sampleBuffer[0] = 0;
+                                    sampleBuffer[1] = 0;
+                                    sampleBuffer[2] = 0;									
+                                }
+                                
+                                int obx = x / oversampling;
+                                obx <<= 2;
+                                
+                                if (adjustedNorm <= 1.0) {
+                                    if (alpha) {
+                                        sampleBuffer[3] = xform.input ().sampleAlpha (inX, inY);
+                                    }
+                                } else {
+                                    sampleBuffer[3] = 0;
+                                }
+                                
+                                for (int i = 0; i < sampleBuffer.length; ++i) {
+                                    oversamplingBuffer[obx + i] += sampleBuffer[i];
+                                }
                             }
+                        }
+                        
+                        int oversampling2 = oversampling * oversampling;
+                        for (int x = 0; x < oversamplingBuffer.length; ++x) {
+                            oversamplingBuffer[x] /= oversampling2;
+                        }
+                        for (int x = 0; x < size; ++x) {
+                            int wx = x << 2;
+                            outputImage.componentValue (x, destY, oversamplingBuffer[wx + 0], oversamplingBuffer[wx + 1], oversamplingBuffer[wx + 2]);
+                            outputImage.alphaValue (x, destY, oversamplingBuffer[wx + 3]);
                         }
                     }
                     return null;
@@ -191,9 +243,9 @@ public class MakePlanet {
         
         PlanetParameters.ImageFormat imageFormat = parameters.optImageFormat (PlanetParameters.ImageFormat.PNG);
         if (PlanetParameters.ImageFormat.PNG == imageFormat) {
-            outputImage.write (output);
+            outputImage.write (outputFile);
         } else if (PlanetParameters.ImageFormat.JPG == imageFormat) {
-            outputImage.writeJpeg (output, parameters.optJpegQuality (0.7f));
+            outputImage.writeJpeg (outputFile, parameters.optJpegQuality (0.7f));
         } else {
             assert false;
         }

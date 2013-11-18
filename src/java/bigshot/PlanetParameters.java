@@ -156,4 +156,15 @@ public class PlanetParameters extends TreeMap<String,String> {
         cover
         If set to true, will stretch the phi angles above the inflection point to cover the output square.
         ;	
+    
+    @INTEGER
+        oversampling
+        The resolution, along each axis, of the oversampling grid.
+        ;
+
+    @FLOAT
+        jitter
+        The random sampling jitter to use, in parts of output pixel.
+        ;
+
 }
