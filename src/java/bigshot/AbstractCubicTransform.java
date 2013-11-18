@@ -382,6 +382,13 @@ public abstract class AbstractCubicTransform<Derived extends AbstractCubicTransf
     }    
     
     /**
+     * Returns the horizontal wrap flag.
+     */
+    public boolean horizontalWrap () {
+        return this.horizontalWrap;
+    }    
+    
+    /**
      * Sets the initial transform offsets (used to level a bubble).
      *
      * @param oy the yaw angle in degrees
