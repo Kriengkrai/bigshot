@@ -325,7 +325,7 @@
             <arg value="1.0"/>
             
             <arg value="--cover"/>
-            <arg value="false"/>
+            <arg value="true"/>
             
             <arg value="--center"/>
             <arg value="0.5"/>
