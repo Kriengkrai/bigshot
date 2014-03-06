@@ -216,7 +216,13 @@
             <arg value="--format"/>
             <arg value="archive"/>
             
-            <jvmarg value="-Xmx1024M"/>
+            <arg value="--jpeg-poster-quality"/>
+            <arg value="0.12"/>
+            
+            <arg value="--jpeg-poster-blur"/>
+            <arg value="16"/>
+            
+            <jvmarg value="-Xmx2024M"/>
         </java>
     </target>
     
@@ -303,11 +309,14 @@
         <java fork="yes" classpath="${package-dir}/bigshot.jar"
             className="bigshot.MakePlanet"
             dir="${basedir}">
+            <!--
             <arg value="${basedir}/test/vr-sample.jpg"/>
+            -->
+            <arg value="${basedir}/test/pano_final.png"/>
             <arg value="${temp}/planet.png"/>
             
             <arg value="--output-size"/>
-            <arg value="512"/>
+            <arg value="1700"/>
             
             <arg value="--ground-inflection"/>
             <arg value="3"/>
@@ -330,7 +339,10 @@
             <arg value="--center"/>
             <arg value="0.5"/>
             
-            <jvmarg value="-Xmx1224M"/>
+            <arg value="--yaw-offset"/>
+            <arg value="135"/>
+            
+            <jvmarg value="-Xmx5524M"/>
         </java>
     </target>
     
