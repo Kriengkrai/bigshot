@@ -25,7 +25,7 @@ bigshot.DataLoader.prototype = {
      * Loads an image.
      *
      * @param {String} url the url to load
-     * @param {function(success,img)} onloaded called on complete 
+     * @param {function(img)} onloaded called on complete 
      */
     loadImage : function (url, onloaded) {},
     
@@ -34,7 +34,7 @@ bigshot.DataLoader.prototype = {
      *
      * @param {String} url the url to load
      * @param {boolean} async use async request
-     * @param {function(success,xml)} [onloaded] called on complete for async requests
+     * @param {function(xml)} [onloaded] called on complete for async requests
      * @return the xml for synchronous calls
      */
     loadXml : function (url, async, onloaded) {}

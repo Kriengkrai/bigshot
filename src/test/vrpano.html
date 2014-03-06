@@ -108,7 +108,17 @@
                             rollOffset : 0,
                             pitchOffset : 0,
                             yawOffset : 0,
-                            maxFov : 120
+                            maxFov : 120,
+                            onload : function () {
+                                bvr.onresize ();
+                                bvr.addHotspot (new bigshot.VRRectangleHotspot (bvr, -10, -8, 10, 2, hotspot));
+                                
+                                var hotspot2 = document.getElementById ("hotspot2");
+                                var hs2 = new bigshot.VRPointHotspot (bvr, 10, -8, hotspot2, -16, -16);
+                                hs2.clippingStrategy = bigshot.VRHotspot.CLIP_FADE (bvr, 32);
+                                bvr.addHotspot (hs2);                
+                                bvr.render ();
+                            }
                         }));
                 
                 displayUpdater = function (state, cause, data) {
@@ -148,15 +158,7 @@
                     outerContainer.style.height = window.innerHeight + "px";
                 };
                 window.onresize = onresize;
-                onresize ();
-                bvr.onresize ();
-                bvr.addHotspot (new bigshot.VRRectangleHotspot (bvr, -10, -8, 10, 2, hotspot));
-                
-                var hotspot2 = document.getElementById ("hotspot2");
-                var hs2 = new bigshot.VRPointHotspot (bvr, 10, -8, hotspot2, -16, -16);
-                hs2.clippingStrategy = bigshot.VRHotspot.CLIP_FADE (bvr, 32);
-                bvr.addHotspot (hs2);
-                bvr.render ();
+                onresize ();                
             }
             
             var frame = 0;

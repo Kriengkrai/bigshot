@@ -50,9 +50,11 @@ bigshot.FileSystem.prototype = {
     /**
      * Returns an image descriptor object from the descriptor file.
      *
+     * @param {Function} [callback] an optional callback that receives the descriptor 
+     * after an async load. Otherwise the function does a synchronous load.
      * @return a descriptor object
      */
-    getDescriptor : function () {},
+    getDescriptor : function (callback) {},
     
     /**
      * Returns the poster URL filename. For Bigshot images this is
