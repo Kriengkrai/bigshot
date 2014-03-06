@@ -124,6 +124,16 @@ public class ImagePyramidParameters extends TreeMap<String,String> {
         jpegQuality
         Jpeg output quality, between 0.0 and 1.0. Only has effect if imageFormat is JPG. Default: 0.7
         ;
+    
+    @FLOAT
+        jpegPosterQuality
+        Jpeg poster image output quality, between 0.0 and 1.0. Only has effect if imageFormat is JPG. Default: 0.7
+        ;
+    
+    @INTEGER
+        jpegPosterBlur
+        Jpeg poster image box blur filtering. Useful for reducing post JPG size. Integer greater than zero. Only has effect if imageFormat is JPG. Default: 0 (no blur)
+        ;
 
     @INTEGER
         faceSize

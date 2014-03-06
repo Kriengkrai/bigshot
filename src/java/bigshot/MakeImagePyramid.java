@@ -17,6 +17,9 @@ package bigshot;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
+import java.awt.image.ConvolveOp;
+import java.awt.image.Kernel;
 import java.awt.image.RenderedImage;
 import java.awt.Color;
 import javax.imageio.ImageIO;
@@ -156,6 +159,7 @@ public class MakeImagePyramid {
     
     private static interface Output {
         public void write (BufferedImage image, File output) throws Exception;
+        public void writePoster (BufferedImage image, File output) throws Exception;
         public String getSuffix ();
         public void configure (ImagePyramidParameters parameters);
     }
@@ -169,6 +173,10 @@ public class MakeImagePyramid {
             ImageIO.write (image, "PNG", output);
         }
         
+        public void writePoster (BufferedImage image, File output) throws Exception {
+            write (image, output);
+        }
+        
         public void configure (ImagePyramidParameters parameters) {
         }
     }
@@ -176,22 +184,26 @@ public class MakeImagePyramid {
     private static class JpegOutput implements Output {
         
         private double quality;
+        private double posterQuality;
+        private int posterBlur;
         
         public void configure (ImagePyramidParameters parameters) {
             quality = parameters.optJpegQuality (0.7f);
+            posterQuality = parameters.optJpegPosterQuality (0.7f);
+            posterBlur = parameters.optJpegPosterBlur (0);
         }
         
         public String getSuffix () {
             return ".jpg";
         }
         
-        public void write (BufferedImage image, File output) throws Exception {
+        public void writeImage (BufferedImage image, File output, double imageQuality) throws Exception {
             ImageWriter writer = ImageIO.getImageWritersByFormatName ("jpeg").next ();
             try {
                 ImageWriteParam iwp = writer.getDefaultWriteParam();
                 
                 iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-                iwp.setCompressionQuality ((float) quality);
+                iwp.setCompressionQuality ((float) imageQuality);
                 
                 FileImageOutputStream os = new FileImageOutputStream (output);
                 try {
@@ -204,6 +216,61 @@ public class MakeImagePyramid {
                 
             } finally {
                 writer.dispose();
+            }
+        }
+        
+        public void write (BufferedImage image, File output) throws Exception {
+            writeImage (image, output, quality);
+        }
+        
+        private double gaussianValueAt (int x, int size) {
+            double sigma = size / 3.0;
+            double factor = 1 / (Math.sqrt (2 * Math.PI) * sigma);
+            return factor * Math.exp (-(x * x) / (2 * sigma * sigma));
+        }
+        
+        private BufferedImage prepareForBlur (BufferedImage image) throws Exception {
+            BufferedImage newImage = new BufferedImage(
+                image.getWidth () + posterBlur,
+                image.getHeight () + posterBlur,
+                BufferedImage.TYPE_INT_RGB);
+            Graphics2D g2 = newImage.createGraphics();
+            g2.drawImage (
+                image, 
+                0, 0, image.getWidth() + posterBlur, image.getHeight() + posterBlur, 
+                0, 0, image.getWidth (), image.getHeight (), 
+                null);
+            g2.dispose ();
+            return newImage;
+        }
+        
+        public void writePoster (BufferedImage image, File output) throws Exception {
+            if (posterBlur > 0) {
+                float[] blurKernel = new float[posterBlur];
+                float sum = 0.0f;
+                for (int i = 0; i < blurKernel.length; i++) {
+                    blurKernel[i] = (float) gaussianValueAt (i - blurKernel.length / 2, blurKernel.length / 2);
+                    sum += blurKernel[i];
+                }
+                for (int i = 0; i < blurKernel.length; i++) {
+                    blurKernel[i] /= sum;
+                }
+                
+                BufferedImageOp opW = new ConvolveOp (new Kernel (posterBlur, 1, blurKernel), ConvolveOp.EDGE_ZERO_FILL, null);
+                BufferedImageOp opH = new ConvolveOp (new Kernel (1, posterBlur, blurKernel), ConvolveOp.EDGE_ZERO_FILL, null);
+                
+                BufferedImage prepared = prepareForBlur (image);
+                BufferedImage blurredW = opW.filter (prepared, opW.createCompatibleDestImage (prepared, null));
+                prepared = null;
+                BufferedImage blurredWH = opH.filter (blurredW, opH.createCompatibleDestImage (blurredW, null));
+                blurredW = null;
+                
+                BufferedImage finalImage = blurredWH.getSubimage (posterBlur / 2, posterBlur / 2, image.getWidth (), image.getHeight ());
+                blurredWH = null;
+                
+                writeImage (finalImage, output, posterQuality);
+            } else {
+                writeImage (image, output, posterQuality);
             }
         }
     }
@@ -628,7 +695,7 @@ public class MakeImagePyramid {
             g.drawImage (full.getScaledInstance (pw, ph, java.awt.Image.SCALE_AREA_AVERAGING), 0, 0, null);
             g.dispose ();
             
-            output.write (poster, new File (folders, "poster" + output.getSuffix ()));
+            output.writePoster (poster, new File (folders, "poster" + output.getSuffix ()));
         }   
         
         
