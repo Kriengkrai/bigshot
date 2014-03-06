@@ -30,7 +30,7 @@ bigshot.FolderFileSystem = function (parameters) {
 
 
 bigshot.FolderFileSystem.prototype = {    
-    getDescriptor : function () {
+    getDescriptor : function (callback) {
         this.browser = new bigshot.Browser ();
         var req = this.browser.createXMLHttpRequest ();
         
@@ -47,6 +47,9 @@ bigshot.FolderFileSystem.prototype = {
                 }
             }
             this.suffix = descriptor.suffix;
+            if (callback) {
+                callback (descriptor);
+            }
             return descriptor;
         } else {
             throw new Error ("Unable to find descriptor.");

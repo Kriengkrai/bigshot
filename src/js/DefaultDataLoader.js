@@ -62,16 +62,43 @@ bigshot.DefaultDataLoader.prototype = {
         return tile;
     },
     
-    loadXml : function (url, synchronous, onloaded) {
+    loadXml : function (url, asynchronous, onloaded) {
+        if (asynchronous) {
+            this.asyncLoadXml (url, onloaded, 0);
+        } else {
+            return this.syncLoadXml (url, onloaded);
+        }
+    },
+    
+    asyncLoadXml : function (url, onloaded, attempt) {
+        var req = this.browser.createXMLHttpRequest ();
+        req.addEventListener ("load", function () {
+                onloaded (req.responseXML);
+            });
+        var that = this;
+        req.addEventListener ("error", function () {
+                if (attempt < that.maxRetries) {
+                    that.asyncLoadXml (url, onloaded, attempt + 1);
+                } else {
+                    onloaded (null);
+                }
+            });
+        req.open ("GET", url, true);   
+        req.overrideMimeType ('text/xml');
+        req.send ();
+    },
+    
+    syncLoadXml : function (url) {
         for (var tries = 0; tries <= this.maxRetries; ++tries) {
             var req = this.browser.createXMLHttpRequest ();
             
-            req.open("GET", url, false);   
+            req.open("GET", url, false);
+            req.overrideMimeType ('text/xml');
             req.send(null); 
-            if(req.status == 200) {
+            if (req.status == 200) {
                 var xml = req.responseXML;
                 if (xml != null) {
-                    if (onloaded) {
+                    if (onloaded != null) {
                         onloaded (xml);
                     }
                     return xml;
@@ -79,7 +106,7 @@ bigshot.DefaultDataLoader.prototype = {
             } 
             
             if (tries == that.maxRetries) {
-                if (onloaded) {
+                if (onloaded != null) {
                     onloaded (null);
                 }
                 return null;

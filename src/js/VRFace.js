@@ -45,28 +45,9 @@ bigshot.VRFace = function (owner, key, topLeft_, width_, u, v, onLoaded) {
     
     bigshot.setupFileSystem (this.parameters);
     this.parameters.fileSystem.setPrefix ("face_" + key);
-    this.parameters.merge (this.parameters.fileSystem.getDescriptor (), false);
-    
-    
-    /**
-     * Texture cache.
-     *
-     * @private
-     */
-    this.tileCache = owner.renderer.createTileCache (function () { 
-            that.updated = true;
-            owner.renderUpdated (bigshot.VRPanorama.ONRENDER_TEXTURE_UPDATE);
-        }, onLoaded, this.parameters);
-    
-    this.fullSize = this.parameters.width;
-    this.overlap = this.parameters.overlap;
-    this.tileSize = this.parameters.tileSize;
-    
-    this.minDivisions = 0;
-    var fullZoom = Math.log (this.fullSize - this.overlap) / Math.LN2;
-    var singleTile = Math.log (this.tileSize - this.overlap) / Math.LN2;
-    this.maxDivisions = Math.floor (fullZoom - singleTile);
-    this.maxTesselation = this.parameters.maxTesselation >= 0 ? this.parameters.maxTesselation : this.maxDivisions;
+    this.parameters.fileSystem.getDescriptor (function (loadedDescriptor) {
+            that.initWithDescriptor (loadedDescriptor, onLoaded);
+        });
 }
 
 bigshot.VRFace.prototype = {
@@ -74,6 +55,31 @@ bigshot.VRFace.prototype = {
     
     dispose : function () {
         this.tileCache.dispose ();
+    },
+    
+    initWithDescriptor : function (descriptor, onLoaded) {
+        var that = this;
+        this.parameters.merge (descriptor, false);
+        
+        /**
+         * Texture cache.
+         *
+         * @private
+         */
+        this.tileCache = this.owner.renderer.createTileCache (function () { 
+                that.updated = true;
+                that.owner.renderUpdated (bigshot.VRPanorama.ONRENDER_TEXTURE_UPDATE);
+            }, onLoaded, this.parameters);
+        
+        this.fullSize = this.parameters.width;
+        this.overlap = this.parameters.overlap;
+        this.tileSize = this.parameters.tileSize;
+        
+        this.minDivisions = 0;
+        var fullZoom = Math.log (this.fullSize - this.overlap) / Math.LN2;
+        var singleTile = Math.log (this.tileSize - this.overlap) / Math.LN2;
+        this.maxDivisions = Math.floor (fullZoom - singleTile);
+        this.maxTesselation = this.parameters.maxTesselation >= 0 ? this.parameters.maxTesselation : this.maxDivisions;
     },
     
     /**

@@ -33,10 +33,21 @@ bigshot.DeepZoomImageFileSystem = function (parameters) {
 }
 
 bigshot.DeepZoomImageFileSystem.prototype = {    
-    getDescriptor : function () {
-        var descriptor = {};
+    getDescriptor : function (callback) {
+        if (callback != null) {
+            var that = this;
+            this.parameters.dataLoader.loadXml (this.parameters.basePath + this.prefix + ".xml", true, function (xml) {
+                    that.processDescriptor (xml, callback);
+                });
+        } else {
+            var xml = this.parameters.dataLoader.loadXml (this.parameters.basePath + this.prefix + ".xml", false);
+            return this.processDescriptor (xml, callback);
+        }
         
-        var xml = this.parameters.dataLoader.loadXml (this.parameters.basePath + this.prefix + ".xml", false);
+    },
+    
+    processDescriptor : function (xml, callback) {
+        var descriptor = {};
         var image = xml.getElementsByTagName ("Image")[0];
         var size = xml.getElementsByTagName ("Size")[0];
         descriptor.width = parseInt (size.getAttribute ("Width"));
@@ -52,6 +63,9 @@ bigshot.DeepZoomImageFileSystem.prototype = {
         descriptor.minZoom = -this.fullZoomLevel;
         var posterZoomLevel = Math.ceil (Math.log (descriptor.tileSize) / Math.LN2);
         this.posterName = this.getImageFilename (0, 0, posterZoomLevel - this.fullZoomLevel);
+        if (callback) {
+            callback (descriptor);
+        }
         return descriptor;
     },
     

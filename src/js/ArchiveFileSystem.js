@@ -62,7 +62,7 @@ bigshot.ArchiveFileSystem = function (parameters) {
 
 
 bigshot.ArchiveFileSystem.prototype = { 
-    getDescriptor : function () {
+    getDescriptor : function (callback) {
         this.browser = new bigshot.Browser ();
         var req = this.browser.createXMLHttpRequest ();
         
@@ -79,6 +79,9 @@ bigshot.ArchiveFileSystem.prototype = {
                 }
             }
             this.suffix = descriptor.suffix;
+            if (callback) {
+                callback (descriptor);
+            }
             return descriptor;
         } else {
             throw new Error ("Unable to find descriptor.");
