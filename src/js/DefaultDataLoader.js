@@ -72,12 +72,12 @@ bigshot.DefaultDataLoader.prototype = {
     
     asyncLoadXml : function (url, onloaded, attempt) {
         var req = this.browser.createXMLHttpRequest ();
+        var that = this;
         req.addEventListener ("load", function () {
                 onloaded (req.responseXML);
             });
-        var that = this;
         req.addEventListener ("error", function () {
-                if (attempt < that.maxRetries) {
+                if (req.status != 403 && req.status != 404 && attempt < that.maxRetries) {
                     that.asyncLoadXml (url, onloaded, attempt + 1);
                 } else {
                     onloaded (null);
@@ -105,7 +105,8 @@ bigshot.DefaultDataLoader.prototype = {
                 }
             } 
             
-            if (tries == that.maxRetries) {
+            // Give up immediately on 403 and 404
+            if (req.status == 403 || req.status == 404 || tries == that.maxRetries) {
                 if (onloaded != null) {
                     onloaded (null);
                 }
