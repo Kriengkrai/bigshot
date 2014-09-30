@@ -106,6 +106,27 @@ public class MakePlanet {
     }
     
     public static void process (File inputFile, File outputFile, final PlanetParameters parameters, Collection<ImageInsert> inserts) throws Exception {
+        process (Image.read (inputFile, true), outputFile, parameters, inserts);
+    }
+    
+    public static Image process (File inputFile, final PlanetParameters parameters, Collection<ImageInsert> inserts) throws Exception {
+        return process (Image.read (inputFile, true), parameters, inserts);
+    }
+    
+    public static void process (Image input, File outputFile, final PlanetParameters parameters, Collection<ImageInsert> inserts) throws Exception {
+        Image outputImage = process (input, parameters, inserts);
+        
+        PlanetParameters.ImageFormat imageFormat = parameters.optImageFormat (PlanetParameters.ImageFormat.PNG);
+        if (PlanetParameters.ImageFormat.PNG == imageFormat) {
+            outputImage.write (outputFile);
+        } else if (PlanetParameters.ImageFormat.JPG == imageFormat) {
+            outputImage.writeJpeg (outputFile, parameters.optJpegQuality (0.7f));
+        } else {
+            assert false;
+        }
+    }
+    
+    public static Image process (Image inputImage, final PlanetParameters parameters, Collection<ImageInsert> inserts) throws Exception {
         AbstractSphericalCubicTransform<? extends AbstractCubicTransform> txform = null;
         
         if (parameters.transform () == PlanetParameters.Transform.CYLINDER) {
@@ -116,7 +137,7 @@ public class MakePlanet {
         
         final AbstractSphericalCubicTransform<? extends AbstractCubicTransform> xform = txform;
         
-        xform.input (Image.read (inputFile, true))
+        xform.input (inputImage)
             .offset (parameters.optYawOffset (0), parameters.optPitchOffset (0), parameters.optRollOffset (0));
         
         if (parameters.containsKey (PlanetParameters.TRANSFORM_PTO)) {
@@ -241,13 +262,6 @@ public class MakePlanet {
                 }
             });
         
-        PlanetParameters.ImageFormat imageFormat = parameters.optImageFormat (PlanetParameters.ImageFormat.PNG);
-        if (PlanetParameters.ImageFormat.PNG == imageFormat) {
-            outputImage.write (outputFile);
-        } else if (PlanetParameters.ImageFormat.JPG == imageFormat) {
-            outputImage.writeJpeg (outputFile, parameters.optJpegQuality (0.7f));
-        } else {
-            assert false;
-        }
+        return outputImage;
     }
 }
