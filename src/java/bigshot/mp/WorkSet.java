@@ -51,6 +51,11 @@ public abstract class WorkSet<Result> {
     }
     
     /**
+     * Enable tail-callable optimizations.
+     */
+    public abstract WorkSet<Result> tail ();
+    
+    /**
      * Completes all submitted callables and returns the results as {@link Future}s.
      */
     public abstract List<Future<Result>> complete () throws Exception;
@@ -75,7 +80,7 @@ public abstract class WorkSet<Result> {
      * Convenience method to execute a parallel for in a work set.
      */
     public static <Result> List<Result> pfor (int a, int b, ParallelFor<Result> pfor) throws Exception {
-        WorkSet<Result> res = WorkSet.create ();
+        WorkSet<Result> res = WorkSet.<Result>create ().tail ();
         res.parallelFor (a, b, pfor);
         return res.join ();
     }

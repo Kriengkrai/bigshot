@@ -117,12 +117,26 @@ public class DefaultWorkSetFactory implements WorkSetFactory, Runnable {
         
         private final List<Future<R>> futures = new ArrayList<Future<R>> ();
         private final DefaultWorkSetFactory executor;
+        private boolean useTailCallable = false;
+        
+        private Callable<R> tailCallable;
         
         public WorkSetImpl (DefaultWorkSetFactory executor) {
             this.executor = executor;
         }
         
+        public WorkSet<R> tail () {
+            useTailCallable = true;
+            return this;
+        }
+        
         public List<Future<R>> complete () throws Exception {
+            FutureTaskImpl<R> tailFuture = null;
+            if (tailCallable != null) {
+                tailFuture = new FutureTaskImpl<R> (tailCallable);
+                tailCallable = null;
+                tailFuture.run ();
+            }
             // Iterate over the futures. Those that are 
             // already completed return immediately,
             // Those that are still waiting will execute
@@ -130,12 +144,15 @@ public class DefaultWorkSetFactory implements WorkSetFactory, Runnable {
             for (Future<R> f : futures) {
                 f.get ();
             }
+            
+            if (tailFuture != null) {
+                futures.add (tailFuture);
+            }
             return futures;
         }
         
         public List<R> join () throws Exception {
             // Complete and gather up the results.
-            
             List<R> result = new ArrayList<R> ();
             for (Future<R> f : complete ()) {
                 result.add (f.get ());
@@ -144,7 +161,15 @@ public class DefaultWorkSetFactory implements WorkSetFactory, Runnable {
         }
         
         public void execute (Callable<R> callable) {
-            futures.add (executor.submit (callable));
+            if (tailCallable != null) {
+                futures.add (executor.submit (tailCallable));
+                tailCallable = null;
+            }
+            if (useTailCallable) {
+                tailCallable = callable;
+            } else {
+                futures.add (executor.submit (callable));
+            }
         }
         
         public void parallelFor (int a, int b, final ParallelFor<R> pfor) throws Exception {
