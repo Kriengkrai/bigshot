@@ -222,7 +222,7 @@
             <arg value="--jpeg-poster-blur"/>
             <arg value="16"/>
             
-            <jvmarg value="-Xmx1024M"/>
+            <jvmarg value="-Xmx1224M"/>
         </java>
     </target>
     
@@ -257,7 +257,7 @@
             <arg value="--format"/>
             <arg value="archive"/>
             
-            <jvmarg value="-Xmx1024M"/>
+            <jvmarg value="-Xmx1224M"/>
         </java>
     </target>
     
@@ -295,7 +295,7 @@
             <arg value="--insert"/>
             <arg value="232.137,-9.980,0,45,${basedir}/test/overlay-image.png"/>
             
-            <jvmarg value="-Xmx1024M"/>
+            <jvmarg value="-Xmx1224M"/>
         </java>
     </target>
     
