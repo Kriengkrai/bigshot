@@ -64,10 +64,17 @@ bigshot.AbstractVRRenderer.prototype = {
      * Transforms a vector to screen coordinates.
      *
      * @param {bigshot.Point3D} vector the vector to transform
+     * @param {bigshot.VRPanorama.CoordinateSystem} [coordinateSystem=bigshot.VRPanorama.CoordinateSystem.IMAGE] the coordinate system
+     * to use.
      * @return the transformed vector, or null if the vector is nearer than the near-z plane.
      */
-    transformToScreen : function transformToScreen (vector) {
-        var sel = this.mvpMatrix.xPoint3Dhom (vector);
+    transformToScreen : function transformToScreen (vector, coordinateSystem) {
+        var sel = null;
+        if (coordinateSystem == bigshot.VRPanorama.CoordinateSystem.VIEW) {
+            sel = this.vpMatrix.xPoint3Dhom (vector);
+        } else {
+            sel = this.mvpMatrix.xPoint3Dhom (vector);
+        }
         
         if (sel.z < 0) {
             return null;

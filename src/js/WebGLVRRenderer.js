@@ -34,6 +34,8 @@ bigshot.WebGLVRRenderer = function (container) {
     this.webGl.gl.disable (this.webGl.gl.DEPTH_TEST);
     this.webGl.gl.clearDepth (1.0);
     
+    this.vMatrix = new bigshot.TransformStack ();
+    
     var that = this;
     this.buffers = new bigshot.TimedWeakReference (function () {
             return that.setupBuffers ();
@@ -121,6 +123,9 @@ bigshot.WebGLVRRenderer.prototype = {
     },
     
     beginRender : function (rotation, fov, translation, rotationOffsets) {
+        this.yaw = rotation.y;
+        this.pitch = rotation.p;
+        
         this.webGl.gl.viewport (0, 0, this.webGl.gl.viewportWidth, this.webGl.gl.viewportHeight);
         
         this.webGl.pMatrix.reset ();
@@ -134,9 +139,16 @@ bigshot.WebGLVRRenderer.prototype = {
         this.webGl.mvMatrix.rotateY (rotation.y);
         this.webGl.mvMatrix.rotateX (rotation.p);
         
+        this.vMatrix.reset ();
+        this.vMatrix.translate (translation);
+        this.vMatrix.rotateY (this.yaw);
+        this.vMatrix.rotateX (this.pitch);        
+        
         this.mvMatrix = this.webGl.mvMatrix;
         this.pMatrix = this.webGl.pMatrix;
+        
         this.mvpMatrix = this.pMatrix.matrix ().multiply (this.mvMatrix.matrix ());
+        this.vpMatrix = this.pMatrix.matrix ().multiply (this.vMatrix.matrix ());
     },
     
     endRender : function () {

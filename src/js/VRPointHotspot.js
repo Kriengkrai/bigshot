@@ -33,18 +33,21 @@
  * to the hotspot's polar coordinates. Use this to center the hotspot horizontally.
  * @param {number} offsetY the offset to add to the screen coordinate corresponding
  * to the hotspot's polar coordinates. Use this to center the hotspot vertically.
+ * @param {bigshot.VRPanorama.CoordinateSystem} [coordinateSystem=bigshot.VRPanorama.CoordinateSystem.IMAGE] the coordinate system
+ * to use.
  */
-bigshot.VRPointHotspot = function (panorama, yaw, pitch, element, offsetX, offsetY) {
+bigshot.VRPointHotspot = function (panorama, yaw, pitch, element, offsetX, offsetY, coordinateSystem) {
     bigshot.VRHotspot.call (this, panorama);
     this.element = element;
     this.offsetX = offsetX;
     this.offsetY = offsetY;
     this.point = this.toVector (yaw, pitch);
+    this.coordinateSystem = coordinateSystem;
 }
  
 bigshot.VRPointHotspot.prototype = {
     layout : function () {
-        var p = this.toScreen (this.point);
+        var p = this.toScreen (this.point, this.coordinateSystem);
         
         var visible = false;
         if (p != null) {

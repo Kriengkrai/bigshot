@@ -48,12 +48,13 @@ bigshot.CSS3DVRRenderer = function (_container) {
     
     this.view = null;
     
-    this.mvMatrix = new bigshot.TransformStack ();
-    
     this.yaw = 0;
     this.pitch = 0;
     this.fov = 0;
+    
     this.pMatrix = new bigshot.TransformStack ();
+    this.mvMatrix = new bigshot.TransformStack ();
+    this.vMatrix = new bigshot.TransformStack ();
     
     this.onresize = function () {
     };
@@ -124,25 +125,26 @@ bigshot.CSS3DVRRenderer.prototype = {
         var halfFovInRad = 0.5 * fov * Math.PI / 180;
         var halfHeight = this.getViewportHeight () / 2;
         var perspectiveDistance = halfHeight / Math.tan (halfFovInRad);
+        this.view = translation;
         
         this.mvMatrix.reset ();
-        
-        this.view = translation;
         this.mvMatrix.translate (this.view);
-        
-        
         this.mvMatrix.rotateZ (rotationOffsets.r);
         this.mvMatrix.rotateX (rotationOffsets.p);
         this.mvMatrix.rotateY (rotationOffsets.y);
-        
         this.mvMatrix.rotateY (this.yaw);
         this.mvMatrix.rotateX (this.pitch);
         
+        this.vMatrix.reset ();
+        this.vMatrix.translate (this.view);
+        this.vMatrix.rotateY (this.yaw);
+        this.vMatrix.rotateX (this.pitch);
         
         this.pMatrix.reset ();
         this.pMatrix.perspective (this.fov, this.getViewportWidth () / this.getViewportHeight (), 0.1, 100.0);
         
         this.mvpMatrix = this.pMatrix.matrix ().multiply (this.mvMatrix.matrix ());
+        this.vpMatrix = this.pMatrix.matrix ().multiply (this.vMatrix.matrix ());
         
         this.canvasOrigin.style.WebkitPerspective= perspectiveDistance + "px";
         

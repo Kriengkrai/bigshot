@@ -275,6 +275,12 @@ bigshot.VRPanorama = function (parameters) {
      */
     this.renderListeners = new Array (); 
     
+    /**
+     * List of renderables.
+     *
+     * @private
+     * @type bigshot.VRPanorama.Renderable[]
+     */
     this.renderables = new Array ();
     
     /**
@@ -527,7 +533,7 @@ bigshot.VRPanorama.ONRENDER_END = 1;
  * @constant
  * @public
  * @static
- * @param {bigshot.VRPanorama.RenderCause}
+ * @type bigshot.VRPanorama.RenderCause
  */
 bigshot.VRPanorama.ONRENDER_TEXTURE_UPDATE = 0;
 
@@ -540,6 +546,37 @@ bigshot.VRPanorama.ONRENDER_TEXTURE_UPDATE = 0;
  * 
  * @see bigshot.VRPanorama.ONRENDER_TEXTURE_UPDATE
  */
+
+/**
+ * @name bigshot.VRPanorama.CoordinateSystem
+ * @class The frame of reference to use for coordinates.
+ */
+bigshot.VRPanorama.CoordinateSystem = {
+    /**
+     * Coordinates relative to the panorama image map. Yaw and pitch values expressed in 
+     * this system will remain fixed at the same spot in the panorama's image when the
+     * rotation offsets change.
+     *
+     * @constant
+     * @public
+     * @static
+     * @type bigshot.VRPanorama.CoordinateSystem
+     */
+    IMAGE : "IMAGE",
+    
+    /**
+     * Coordinates relative to the bubble 3D-space. Yaw and pitch values expressed in 
+     * this system will remain fixed at the same viewing yaw and pitch when the rotation 
+     * offsets change.
+     *
+     * @constant
+     * @public
+     * @static
+     * @type bigshot.VRPanorama.CoordinateSystem
+     */
+    VIEW : "VIEW"
+};
+
 
 /**
  * Specification for functions passed to {@link bigshot.VRPanorama#addRenderListener}.

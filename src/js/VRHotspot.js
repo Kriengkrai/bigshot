@@ -254,10 +254,12 @@ bigshot.VRHotspot.prototype = {
      * Converts the world-coordinate point p to screen coordinates.
      *
      * @param {bigshot.Point3D} p the world-coordinate point
+     * @param {bigshot.VRPanorama.CoordinateSystem} [coordinateSystem=bigshot.VRPanorama.CoordinateSystem.IMAGE] the coordinate system
+     * to use.
      * @type point
      */
-    toScreen : function (p) {
-        var res = this.panorama.renderer.transformToScreen (p)
+    toScreen : function (p, coordinateSystem) {
+        var res = this.panorama.renderer.transformToScreen (p, coordinateSystem)
         return res;
     },
     
