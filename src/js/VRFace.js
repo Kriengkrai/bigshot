@@ -121,12 +121,22 @@ bigshot.VRFace.prototype = {
      * @private
      */
     generateFace : function (scene, topLeft, width, tx, ty, divisions) {
-        width *= this.tileSize / (this.tileSize - this.overlap);
+        var renderWidth = width * this.tileSize / (this.tileSize - this.overlap);
+        var renderOverlap = renderWidth - width;
+        
+        var renderOverlap2 = renderOverlap / 2;
+        
+        var adjustedTopLeft = {
+            x : topLeft.x - this.u.x * renderOverlap - this.v.x * renderOverlap,
+            y : topLeft.y - this.u.y * renderOverlap - this.v.y * renderOverlap,
+            z : topLeft.z - this.u.z * renderOverlap - this.v.z * renderOverlap
+        };
+        
         var texture = this.tileCache.getTexture (tx, ty, -this.maxDivisions + divisions);
         scene.addQuad (this.owner.renderer.createTexturedQuad (
-                topLeft,
-                this.pt3dMult (this.u, width),
-                this.pt3dMult (this.v, width),
+                adjustedTopLeft,
+                this.pt3dMult (this.u, renderWidth),
+                this.pt3dMult (this.v, renderWidth),
                 texture
             )
         );
