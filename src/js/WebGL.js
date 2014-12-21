@@ -188,9 +188,9 @@ bigshot.WebGL.prototype = {
      * @type WebGLTexture
      * @return An initialized texture
      */
-    createImageTextureFromImage : function (image, minFilter, magFilter) {
+    createImageTextureFromImage : function (image, minFilter, magFilter, srcRect) {
         var texture = this.gl.createTexture();
-        this.handleImageTextureLoaded (this, texture, image, minFilter, magFilter);
+        this.handleImageTextureLoaded (this, texture, image, minFilter, magFilter, srcRect);
         return texture;
     },
     
@@ -220,9 +220,19 @@ bigshot.WebGL.prototype = {
      *
      * @private
      */
-    handleImageTextureLoaded : function (that, texture, image, minFilter, magFilter) {
-        that.gl.bindTexture (that.gl.TEXTURE_2D, texture);        
-        that.gl.texImage2D (that.gl.TEXTURE_2D, 0, that.gl.RGBA, that.gl.RGBA, that.gl.UNSIGNED_BYTE, image);
+    handleImageTextureLoaded : function (that, texture, image, minFilter, magFilter, srcRect) {
+        that.gl.bindTexture (that.gl.TEXTURE_2D, texture);
+        if (srcRect == null) {
+            that.gl.texImage2D (that.gl.TEXTURE_2D, 0, that.gl.RGBA, that.gl.RGBA, that.gl.UNSIGNED_BYTE, image);
+        } else {
+            var canvas = document.createElement ("canvas");
+            canvas.width = srcRect.w;
+            canvas.height = srcRect.h;
+
+            var ctx = canvas.getContext ("2d");
+            ctx.drawImage (image, srcRect.x, srcRect.y);
+            that.gl.texImage2D (that.gl.TEXTURE_2D, 0, that.gl.RGBA, that.gl.RGBA, that.gl.UNSIGNED_BYTE, canvas);
+        }
         that.gl.texParameteri (that.gl.TEXTURE_2D, that.gl.TEXTURE_MAG_FILTER, magFilter ? magFilter : that.gl.NEAREST);
         that.gl.texParameteri (that.gl.TEXTURE_2D, that.gl.TEXTURE_MIN_FILTER, minFilter ? minFilter : that.gl.NEAREST);
         that.gl.texParameteri (that.gl.TEXTURE_2D, that.gl.TEXTURE_WRAP_S, that.gl.CLAMP_TO_EDGE);

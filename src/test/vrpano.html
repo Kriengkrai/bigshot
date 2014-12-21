@@ -91,6 +91,11 @@
             
             function vrpano () {
                 var vrFileName = document.location.hash ? document.location.hash.substring (1) : "vr.bigshot";
+                if (vrFileName.substring (vrFileName.length - 1) == "/") {
+                    vrFileName = "/temp/" + vrFileName;
+                } else {
+                    vrFileName = "/bigshot.php?file=temp/" + vrFileName + "&entry=";
+                }
                 var hotspot = document.getElementById ("hotspot");
                 var linear = null;
                 if (bigshot.WebGLUtil.isWebGLSupported ()) {
@@ -99,7 +104,7 @@
                 bvr = new bigshot.VRPanorama (
                     new bigshot.VRPanoramaParameters ({
                             container : document.getElementById ("container"),
-                            basePath : "/bigshot.php?file=temp/" + vrFileName + "&entry=",
+                            basePath : vrFileName,
                             fileSystemType : "dzi",
                             textureMinFilter : linear,
                             textureMagFilter : linear,

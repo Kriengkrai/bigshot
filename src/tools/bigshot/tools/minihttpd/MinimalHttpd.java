@@ -102,6 +102,8 @@ public class MinimalHttpd {
             return "audio/mpeg";
         } else if (filename.endsWith (".js")) {
             return "application/javascript";
+        } else if (filename.endsWith (".mp4")) {
+            return "video/mp4";
         } else {
             return null;
         }

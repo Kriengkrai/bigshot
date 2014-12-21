@@ -46,7 +46,11 @@ bigshot.WebGLVRRenderer = function (container) {
 
 bigshot.WebGLVRRenderer.prototype = {
     createTileCache : function (onloaded, onCacheInit, parameters) {
-        return new bigshot.TextureTileCache (onloaded, onCacheInit, parameters, this.webGl);
+        if (parameters.suffix == ".flv") {
+            return new bigshot.VideoTextureTileCache (onloaded, onCacheInit, parameters, this.webGl);
+        } else {
+            return new bigshot.TextureTileCache (onloaded, onCacheInit, parameters, this.webGl);
+        }
     },
     
     createTexturedQuadScene : function () {

@@ -96,9 +96,11 @@ if (!self["bigshot"]) {
     #include FolderFileSystem.js
     #include DeepZoomImageFileSystem.js
     #include ArchiveFileSystem.js
+    #include VideoConnection.js
     #include VRTileCache.js
     #include ImageVRTileCache.js
     #include TextureTileCache.js
+    #include VideoTextureTileCache.js
     #include VRFace.js
     #include WebGLUtil.js
     #include TransformStack.js
