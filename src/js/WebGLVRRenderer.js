@@ -46,7 +46,7 @@ bigshot.WebGLVRRenderer = function (container) {
 
 bigshot.WebGLVRRenderer.prototype = {
     createTileCache : function (onloaded, onCacheInit, parameters) {
-        if (parameters.suffix == ".flv") {
+        if (parameters.mediaType == "video") {
             return new bigshot.VideoTextureTileCache (onloaded, onCacheInit, parameters, this.webGl);
         } else {
             return new bigshot.TextureTileCache (onloaded, onCacheInit, parameters, this.webGl);

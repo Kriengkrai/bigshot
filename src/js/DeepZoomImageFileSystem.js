@@ -18,6 +18,7 @@
  * Creates a new instance of a Deep Zoom Image folder-based filesystem adapter.
  *
  * @augments bigshot.FileSystem
+ * @augments bigshot.AbstractFileSystem
  * @class A Deep Zoom Image filesystem.
  * @param {bigshot.ImageParameters|bigshot.VRPanoramaParameters} parameters the associated image parameters
  * @constructor
@@ -54,7 +55,11 @@ bigshot.DeepZoomImageFileSystem.prototype = {
         descriptor.height = parseInt (size.getAttribute ("Height"));
         descriptor.tileSize = parseInt (image.getAttribute ("TileSize"));
         descriptor.overlap = parseInt (image.getAttribute ("Overlap"));
-        descriptor.suffix = "." + image.getAttribute ("Format")
+        
+        var mediaFormat = this.chooseMediaFormat (image.getAttribute ("Format"));
+        descriptor.suffix = "." + mediaFormat.suffix;
+        descriptor.mediaType = mediaFormat.type;
+        
         descriptor.posterSize = descriptor.tileSize;
         
         this.suffix = descriptor.suffix;
@@ -87,3 +92,6 @@ bigshot.DeepZoomImageFileSystem.prototype = {
         return this.getFilename (key);
     }
 };
+
+bigshot.Object.extend (bigshot.DeepZoomImageFileSystem, bigshot.AbstractFileSystem);
+bigshot.Object.validate ("bigshot.DeepZoomImageFileSystem", bigshot.FileSystem);

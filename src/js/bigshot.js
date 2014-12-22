@@ -92,6 +92,7 @@ if (!self["bigshot"]) {
     #include HTMLDivElementLayer.js
     #include SimpleImage.js
     #include FileSystem.js
+    #include AbstractFileSystem.js
     #include SimpleFileSystem.js
     #include FolderFileSystem.js
     #include DeepZoomImageFileSystem.js
@@ -100,6 +101,8 @@ if (!self["bigshot"]) {
     #include VRTileCache.js
     #include ImageVRTileCache.js
     #include TextureTileCache.js
+    #include AbstractVideoTileCache.js
+    #include VideoImageTileCache.js
     #include VideoTextureTileCache.js
     #include VRFace.js
     #include WebGLUtil.js

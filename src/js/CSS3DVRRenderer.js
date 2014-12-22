@@ -70,7 +70,12 @@ bigshot.CSS3DVRRenderer.prototype = {
     },
     
     createTileCache : function (onloaded, onCacheInit, parameters) {
-        return new bigshot.ImageVRTileCache (onloaded, onCacheInit, parameters);
+        if (parameters.mediaType == "video") {
+            return new bigshot.VideoImageTileCache (onloaded, onCacheInit, parameters);
+        } else {
+            return new bigshot.ImageVRTileCache (onloaded, onCacheInit, parameters);
+        }
+        
     },
     
     createTexturedQuadScene : function () {

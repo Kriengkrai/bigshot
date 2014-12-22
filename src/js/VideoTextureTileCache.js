@@ -18,48 +18,33 @@
  * Creates a new cache instance.
  *
  * @class Tile texture cache for a {@link bigshot.VRFace}.
- * @augments bigshot.VideoTextureTileCache
+ * @augments bigshot.AbstractVideoTileCache
  * @param {function()} onLoaded function that is called whenever a texture tile has been loaded
  * @param {function()} onCacheInit function that is called when the texture cache is fully initialized
  * @param {bigshot.VRPanoramaParameters} parameters image parameters
  * @param {bigshot.WebGL} _webGl WebGL instance to use
  */
 bigshot.VideoTextureTileCache = function (onLoaded, onCacheInit, parameters, _webGl) {
-    this.parameters = parameters;
+    bigshot.AbstractVideoTileCache.call (this, onLoaded, onCacheInit, parameters);
     this.webGl = _webGl;
-    
-    var key = parameters.fileSystem.prefix;
-    key = key.substring (key.length - 1);
-    
-    var index = "bdflru".indexOf (key);
-    var xpos = index % 3;
-    var ypos = Math.floor (index / 3);
-    var pxpos = (parameters.tileSize + 2 * parameters.overlap) * xpos + parameters.overlap;
-    var pypos = (parameters.tileSize + 2 * parameters.overlap) * ypos + parameters.overlap;
-    this.srcRect = {
-        x : pxpos,
-        y : pypos,
-        w : parameters.width,
-        h : parameters.height
-    };
-    
-    this.source = parameters.basePath + "face_bdflru/9/0_0.webm";
-    this.connection = new bigshot.VideoConnection (this.source);
     
     this.canvas = document.createElement ("canvas");
     this.canvas.width = this.srcRect.w;
     this.canvas.height = this.srcRect.h;
     
-    this.onLoaded = onLoaded;
-    this.browser = new bigshot.Browser ();
     this.texture = null;
-    this.disposed = false;
     
     var that = this;
-    this.frameListener = function () {
-        that.captureVideo ();
+    this.frameListener = function (isFirst, secondPass) {
+        if (!secondPass) {
+            that.captureVideo ();
+        }
+        if (secondPass && isFirst) {
+            that.onLoaded ();
+        }
     };
     this.connection.addAnycastFrameListener (this.frameListener);
+    parameters.overlap = 1;
     setTimeout (onCacheInit, 0);
 }
 
@@ -71,8 +56,7 @@ bigshot.VideoTextureTileCache.prototype = {
         if (this.texture != null) {
             this.webGl.deleteTexture (this.texture);
         }
-        this.texture = this.webGl.createImageTextureFromImage (this.canvas, this.parameters.textureMinFilter, this.parameters.textureMagFilter);
-        this.onLoaded ();
+        this.texture = this.webGl.createImageTextureFromImage (this.canvas, this.parameters.textureMinFilter, this.parameters.textureMagFilter);        
     },
         
     getTexture : function (tileX, tileY, zoomLevel) {
@@ -87,15 +71,14 @@ bigshot.VideoTextureTileCache.prototype = {
         return f;
     },
     
-    dispose : function () {
-        this.disposed = true;
+    dispose : function dispose () {
         this.connection.removeAnycastFrameListener (this.frameListener);
-        this.connection.dispose ();
         if (this.texture != null) {
             this.webGl.deleteTexture (this.texture);
         }
+        dispose._super.call (this);
     }
 };
 
-
+bigshot.Object.extend (bigshot.VideoTextureTileCache, bigshot.AbstractVideoTileCache);
 bigshot.Object.validate ("bigshot.VideoTextureTileCache", bigshot.VRTileCache);

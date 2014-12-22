@@ -22,9 +22,9 @@ bigshot.VideoConnection = function (src) {
     this.useCount = 1;
     this.src = src;
     this.videoElement = document.createElement ("video");
+    this.videoElement.loop = true;
     this.videoElement.src = src;
     this.videoElement.play ();
-    this.videoElement.loop = true;
     this.frameListeners = [];
     var that = this;
     this.lastTime = -1;
@@ -48,10 +48,10 @@ bigshot.VideoConnection.getConnection = function (url) {
     if (connection == null) {
         connection = new bigshot.VideoConnection (url);
         bigshot.VideoConnection.cache[url] = connection;
-        return connection;
     } else {
         connection.addUseCount ();
     }
+    return connection;
 };
 
 bigshot.VideoConnection.prototype = {
@@ -67,8 +67,11 @@ bigshot.VideoConnection.prototype = {
     },
     
     fireFrame : function (listener) {
-        if (this.frameListeners.length > 0) {
-            this.frameListeners[0]();
+        for (var i = 0; i < this.frameListeners.length; ++i) {
+            this.frameListeners[i] (i == 0, false);
+        }
+        for (var i = 0; i < this.frameListeners.length; ++i) {
+            this.frameListeners[i] (i == 0, true);
         }
     },
     

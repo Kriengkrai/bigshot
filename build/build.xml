@@ -299,13 +299,14 @@
         </java>
     </target>
     
+    <target name="build-video-sample">
+        <mkdir dir="${basedir}/temp/video-sample/"/>
+        <copy todir="${basedir}/temp/video-sample/">
+            <fileset dir="${basedir}/test/video-sample"/>
+        </copy>
+    </target>
+    
     <target name="build-planet">
-        <!--
-        <mkdir dir="${temp}/vr.bigshot"/>
-        <delete includeEmptyDirs="true">
-        <fileset dir="${temp}/vr.bigshot"/>
-        </delete>
-        -->
         <java fork="yes" classpath="${package-dir}/bigshot.jar"
             className="bigshot.MakePlanet"
             dir="${basedir}">
