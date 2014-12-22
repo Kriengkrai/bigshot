@@ -127,9 +127,9 @@ bigshot.VRFace.prototype = {
         var renderOverlap2 = renderOverlap / 2;
         
         var adjustedTopLeft = {
-            x : topLeft.x - this.u.x * renderOverlap - this.v.x * renderOverlap,
-            y : topLeft.y - this.u.y * renderOverlap - this.v.y * renderOverlap,
-            z : topLeft.z - this.u.z * renderOverlap - this.v.z * renderOverlap
+            x : topLeft.x - this.u.x * renderOverlap2 - this.v.x * renderOverlap2,
+            y : topLeft.y - this.u.y * renderOverlap2 - this.v.y * renderOverlap2,
+            z : topLeft.z - this.u.z * renderOverlap2 - this.v.z * renderOverlap2
         };
         
         var texture = this.tileCache.getTexture (tx, ty, -this.maxDivisions + divisions);

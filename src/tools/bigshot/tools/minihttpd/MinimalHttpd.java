@@ -24,6 +24,9 @@ import java.io.BufferedInputStream;
 import java.io.OutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.RandomAccessFile;
+import java.util.Date;
+import java.util.Locale;
+import java.text.SimpleDateFormat;
 
 /**
  * Minimal implementation of a HTTP server. Used to test Bigshot.
@@ -102,11 +105,18 @@ public class MinimalHttpd {
             return "audio/mpeg";
         } else if (filename.endsWith (".js")) {
             return "application/javascript";
-        } else if (filename.endsWith (".mp4")) {
+        } else if (filename.endsWith (".mp4") || filename.endsWith (".m4v")) {
             return "video/mp4";
+        } else if (filename.endsWith (".webm")) {
+            return "video/webm";
         } else {
             return null;
         }
+    }
+    
+    protected static String httpDate (long when) {
+        SimpleDateFormat sdf = new SimpleDateFormat ("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
+        return sdf.format (new Date (when));
     }
     
     public static void main (String[] args) throws Exception {
@@ -131,7 +141,15 @@ public class MinimalHttpd {
                     try {
                         InputStream is = sock.getInputStream ();
                         String request = readLine (is);
-                        while (readLine (is).length () > 0) {
+                        String rangeHeader = null;
+                        while (true) {
+                            String line = readLine (is);
+                            if (line.length () == 0) {
+                                break;
+                            }
+                            if (line.startsWith ("Range:")) {
+                                rangeHeader = line.substring (line.indexOf ("=") + 1);
+                            }
                         }
                         
                         String[] path = request.split (" ");
@@ -158,7 +176,7 @@ public class MinimalHttpd {
                         
                         File f = new File (root, filename);
                         
-                        int lengthRange = getParameter (parameters, "length", (int) f.length ());
+                        int lengthRange = getParameter (parameters, "length", (int) (f.length () - startRange));
                         
                         if (entry != null) {
                             type = mimeType (entry);                            
@@ -169,6 +187,20 @@ public class MinimalHttpd {
                             } else {
                                 startRange = extents[0];
                                 lengthRange = extents[1];
+                            }
+                        }
+                        
+                        if (rangeHeader != null) {
+                            String[] rangeHeaderExtents = rangeHeader.split ("-");
+                            if (rangeHeaderExtents.length == 2) {
+                                if (rangeHeaderExtents[0].length () > 0) {
+                                    startRange = Integer.parseInt (rangeHeaderExtents[0]);
+                                }
+                                if (rangeHeaderExtents[1].length () > 0) {
+                                    lengthRange = Integer.parseInt (rangeHeaderExtents[1]) - startRange + 1;
+                                } else {
+                                    lengthRange = (int) (f.length () - startRange);
+                                }
                             }
                         }
                         
@@ -187,10 +219,20 @@ public class MinimalHttpd {
                         } else if (f.exists () && !f.isDirectory ()) {
                             FileInputStream fis = new FileInputStream (f);
                             try {
-                                os.write ("HTTP/1.0 200 OK\r\n".getBytes ());
+                                if (rangeHeader != null) {
+                                    os.write ("HTTP/1.1 206 Partial Content\r\n".getBytes ());
+                                    String contentRange = "Content-Range: bytes " + startRange + "-" + (startRange + lengthRange - 1) + "/" + f.length () + "\r\n";
+                                    os.write (contentRange.getBytes ());
+                                    os.write (("Date: " + httpDate (System.currentTimeMillis ()) + "\r\n").getBytes ());
+                                } else {
+                                    os.write ("HTTP/1.0 200 OK\r\n".getBytes ());
+                                }
+                                
                                 if (type != null) {                                
                                     os.write (("Content-Type: " + type + "\r\n").getBytes ());
                                 }
+                                os.write ("Accept-Ranges: bytes\r\n".getBytes ());
+                                os.write ("Connection: close\r\n".getBytes ());
                                 os.write (("Content-Length: " + lengthRange + "\r\n").getBytes ());
                                 
                                 os.write ("\r\n".getBytes ());

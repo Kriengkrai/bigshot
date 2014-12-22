@@ -20,6 +20,7 @@
  * @class Bigshot archive filesystem.
  * @param {bigshot.ImageParameters|bigshot.VRPanoramaParameters} parameters the associated image parameters
  * @augments bigshot.FileSystem
+ * @augments bigshot.AbstractFileSystem
  * @constructor
  */     
 bigshot.ArchiveFileSystem = function (parameters) {
@@ -78,7 +79,9 @@ bigshot.ArchiveFileSystem.prototype = {
                     descriptor[substrings[i]] = parseInt (substrings[i + 1]);
                 }
             }
-            this.suffix = descriptor.suffix;
+            var mediaFormat = this.chooseMediaFormat (descriptor.suffix.substring (1));
+            this.suffix = "." + mediaFormat.suffix;
+            descriptor.mediaType = mediaFormat.type;
             if (callback) {
                 callback (descriptor);
             }
@@ -126,4 +129,5 @@ bigshot.ArchiveFileSystem.prototype = {
     }
 }
 
+bigshot.Object.extend (bigshot.ArchiveFileSystem, bigshot.AbstractFileSystem);
 bigshot.Object.validate ("bigshot.ArchiveFileSystem", bigshot.FileSystem);

@@ -28,7 +28,6 @@ bigshot.FolderFileSystem = function (parameters) {
     this.parameters = parameters;
 }
 
-
 bigshot.FolderFileSystem.prototype = {    
     getDescriptor : function (callback) {
         this.browser = new bigshot.Browser ();
@@ -46,7 +45,12 @@ bigshot.FolderFileSystem.prototype = {
                     descriptor[substrings[i]] = parseInt (substrings[i + 1]);
                 }
             }
-            this.suffix = descriptor.suffix;
+            
+            var mediaFormat = this.chooseMediaFormat (descriptor.suffix.substring (1));
+            this.suffix = "." + mediaFormat.suffix;
+            descriptor.suffix = this.suffix;
+            descriptor.mediaType = mediaFormat.type;
+            
             if (callback) {
                 callback (descriptor);
             }
@@ -82,4 +86,5 @@ bigshot.FolderFileSystem.prototype = {
     }
 };
 
+bigshot.Object.extend (bigshot.FolderFileSystem, bigshot.AbstractFileSystem);
 bigshot.Object.validate ("bigshot.FolderFileSystem", bigshot.FileSystem);
