@@ -126,6 +126,10 @@
     </target>
     
     <target name="package">
+        <jar destfile="${package-dir}/bigshot-tools.jar">
+            <fileset dir="${temp}/tool-classes/"/>
+        </jar>
+        
         <jar destfile="${package-dir}/bigshot.jar">
             <fileset dir="${temp}/classes/" includes="bigshot/**"/>
             <fileset dir="${src}/java/" includes="bigshot/**.txt"/>
@@ -138,7 +142,7 @@
             <arg value="${src}/js/bigshot.js"/>
             <arg value="${src}/js/"/>
         </java>
-        <copy todir="${package-dir}">            
+        <copy todir="${package-dir}">
             <fileset dir="${src}/php/"/>
             <fileset dir="${doc}" includes="LICENSE.txt,README.txt"/>
         </copy>
@@ -160,6 +164,11 @@
             <arg value="${package-dir}/bigshot-full-compressed.js"/>
             <arg value="${package-dir}/bigshot-full.js"/>
         </java>
+        
+        <mkdir dir="${package-dir}/js/bigshot/"/>
+        <copy todir="${package-dir}/js/bigshot/">
+            <fileset dir="${src}/js/"/>
+        </copy>
         
         <concat destfile="${package-dir}/bigshot-full-and-optional.js">
             <filelist dir="${src}/js/webgl/" files="sylvester.js"/>
