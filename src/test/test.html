@@ -130,7 +130,6 @@
                 
                 jsi.addLayer (hotspotLayer);
                 
-                
                 var onresize = function (e) {
                     container.style.width = window.innerWidth + "px";
                     container.style.height = window.innerHeight + "px";
@@ -139,9 +138,6 @@
                 window.onresize = onresize;
                 onresize ();
                 jsi.zoomToFill ();
-                
-                var browser = new bigshot.Browser ();
-                browser.stopMouseEventBubbling (document.getElementById ("bigshotControls"));
             }
             
             function zoomOut () {
