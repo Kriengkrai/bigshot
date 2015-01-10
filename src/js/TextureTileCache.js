@@ -71,7 +71,7 @@ bigshot.TextureTileCache = function (onLoaded, onCacheInit, parameters, _webGl) 
 bigshot.TextureTileCache.prototype = {
     
     getPartialTexture : function (tileX, tileY, zoomLevel) {
-        if (this.fullImage.complete) {
+        if (this.fullImage != null && this.fullImage.complete) {
             var canvas = document.createElement ("canvas");
             if (!canvas["width"]) {
                 return null;
