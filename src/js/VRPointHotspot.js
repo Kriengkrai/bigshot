@@ -14,6 +14,9 @@
  * limitations under the License. 
  */
 
+#include Object.js
+#include VRHotspot.js
+
 /**
  * Creates a new point-hotspot and attaches it to a VR panorama.
  *

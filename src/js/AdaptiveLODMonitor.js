@@ -14,6 +14,8 @@
  * limitations under the License. 
  */
 
+#include VRPanorama.js
+
 /**
  * Creates a new adaptive level-of-detail monitor.
  *

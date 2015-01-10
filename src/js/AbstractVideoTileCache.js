@@ -14,6 +14,9 @@
  * limitations under the License. 
  */
 
+#include Browser.js
+#include VideoConnection.js
+
 /**
  * Creates a new cache instance.
  *

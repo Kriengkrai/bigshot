@@ -14,6 +14,9 @@
  * limitations under the License. 
  */
 
+#include Event.js
+#include Object.js
+
 /**
  * Creates an image event.
  *

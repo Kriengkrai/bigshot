@@ -14,6 +14,10 @@
  * limitations under the License. 
  */
 
+#include AbstractFileSystem.js
+#include FileSystem.js
+#include Object.js
+
 /**
  * Creates a new instance of a Deep Zoom Image folder-based filesystem adapter.
  *

@@ -14,6 +14,8 @@
  * limitations under the License. 
  */
 
+#include Browser.js
+
 /**
  * Creates a new hotspot instance.
  *

@@ -14,6 +14,10 @@
  * limitations under the License. 
  */
 
+#include Browser.js
+#include Layer.js
+#include Object.js
+
 /**
  * Creates a new hotspot layer. The layer must be added to the image using
  * {@link bigshot.ImageBase#addLayer}.

@@ -14,6 +14,9 @@
  * limitations under the License. 
  */
 
+#include Hotspot.js
+#include Object.js
+
 /**
  * Creates a new labeled hotspot instance.
  *

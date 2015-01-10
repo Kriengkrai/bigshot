@@ -14,6 +14,9 @@
  * limitations under the License. 
  */
 
+#include TransformStack.js
+#include WebGLUtil.js
+
 /**
  * Creates a new WebGL wrapper instance.
  *

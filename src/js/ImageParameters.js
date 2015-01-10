@@ -14,6 +14,8 @@
  * limitations under the License. 
  */
 
+#include DefaultDataLoader.js
+
 /**
  * Creates a new image parameter object and populates it with default values for
  * all values not explicitly given.

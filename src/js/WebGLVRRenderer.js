@@ -14,6 +14,17 @@
  * limitations under the License. 
  */
 
+#include AbstractVRRenderer.js
+#include Object.js
+#include TextureTileCache.js
+#include TimedWeakReference.js
+#include TransformStack.js
+#include VRRenderer.js
+#include VideoTextureTileCache.js
+#include WebGL.js
+#include WebGLTexturedQuad.js
+#include WebGLTexturedQuadScene.js
+
 /**
  * @class WebGL renderer.
  */

@@ -14,6 +14,10 @@
  * limitations under the License. 
  */
 
+#include AbstractVideoTileCache.js
+#include Object.js
+#include VRTileCache.js
+
 /**
  * Creates a new cache instance.
  *

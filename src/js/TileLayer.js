@@ -14,6 +14,10 @@
  * limitations under the License. 
  */
 
+#include Browser.js
+#include Layer.js
+#include Object.js
+
 /**
  * Creates a new image layer.
  * 
