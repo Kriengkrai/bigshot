@@ -417,9 +417,10 @@
         <antcall target="build-vr"/>
         <antcall target="build-cylinder-vr"/>
         <antcall target="build-mars-vr"/>
+        <antcall target="build-video-sample"/>
         <antcall target="host"/>
     </target>
-    
+
     <target name="help">
         <echo><![CDATA[Targets:
 clean: 
