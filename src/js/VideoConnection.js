@@ -16,7 +16,6 @@
 
 /**
  * @class A connection to a VR video source.
- * @augments bigshot.VideoConnection
  */
 bigshot.VideoConnection = function (src) {
     this.useCount = 1;
