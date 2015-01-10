@@ -14,6 +14,16 @@
  * limitations under the License. 
  */
 
+#include AbstractVRRenderer.js
+#include Browser.js
+#include CSS3DTexturedQuad.js
+#include CSS3DTexturedQuadScene.js
+#include ImageVRTileCache.js
+#include Object.js
+#include TransformStack.js
+#include VRRenderer.js
+#include VideoImageTileCache.js
+
 /**
  * @class CSS 3D Transform-based renderer.
  * @param {HTMLElement} _container the HTML container element for the render viewport

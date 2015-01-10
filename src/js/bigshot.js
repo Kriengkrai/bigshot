@@ -65,64 +65,19 @@ if (!self["bigshot"]) {
      * during development. The files must be listed in dependency order.
      */
     #include types.js
-    #include Object.js
-    #include Browser.js
-    #include EventDispatcher.js
-    #include Event.js
-    #include TimedWeakReference.js
-    #include ImageEvent.js
-    #include VREvent.js
-    #include FullScreen.js
-    #include DataLoader.js
-    #include DefaultDataLoader.js
+    #include AdaptiveLODMonitor.js
+    #include AdaptiveLODMonitorParameters.js
     #include CachingDataLoader.js
-    #include Hotspot.js
-    #include PointHotspot.js
-    #include Layer.js
-    #include LabeledHotspot.js
-    #include LinkHotspot.js
-    #include HotspotLayer.js
-    #include TileLayer.js
-    #include LRUMap.js
-    #include ImageTileCache.js
-    #include ImageParameters.js
-    #include ImageBase.js
-    #include Image.js
     #include HTMLElementLayer.js
-    #include HTMLDivElementLayer.js
+    #include HotspotLayer.js
+    #include Image.js
+    #include ImageParameters.js
+    #include LinkHotspot.js
+    #include PointHotspot.js
     #include SimpleImage.js
-    #include FileSystem.js
-    #include AbstractFileSystem.js
-    #include SimpleFileSystem.js
-    #include FolderFileSystem.js
-    #include DeepZoomImageFileSystem.js
-    #include ArchiveFileSystem.js
-    #include VideoConnection.js
-    #include VRTileCache.js
-    #include ImageVRTileCache.js
-    #include TextureTileCache.js
-    #include AbstractVideoTileCache.js
-    #include VideoImageTileCache.js
-    #include VideoTextureTileCache.js
-    #include VRFace.js
-    #include WebGLUtil.js
-    #include TransformStack.js
-    #include WebGL.js
-    #include VRRenderer.js
-    #include AbstractVRRenderer.js
-    #include CSS3DVRRenderer.js
-    #include CSS3DTexturedQuad.js
-    #include CSS3DTexturedQuadScene.js
-    #include TexturedQuadScene.js
-    #include WebGLVRRenderer.js
     #include TexturedQuad.js
-    #include WebGLTexturedQuad.js
-    #include WebGLTexturedQuadScene.js
+    #include TexturedQuadScene.js
     #include VRPanoramaParameters.js
-    #include VRPanorama.js
-    #include VRHotspot.js
     #include VRPointHotspot.js
     #include VRRectangleHotspot.js
-    #include AdaptiveLODMonitorParameters.js
-    #include AdaptiveLODMonitor.js
 }

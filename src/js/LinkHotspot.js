@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
+
+#include LabeledHotspot.js
+#include Object.js
     
 /**
  * Creates a new link-hotspot instance.

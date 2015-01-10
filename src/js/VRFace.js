@@ -14,6 +14,10 @@
  * limitations under the License. 
  */
 
+#include Browser.js
+#include FileSystem.js
+#include VRPanorama.js
+
 /**
  * Creates a new VR cube face.
  *

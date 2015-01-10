@@ -14,6 +14,9 @@
  * limitations under the License. 
  */
 
+#include FileSystem.js
+#include Object.js
+
 /**
  * Creates a new instance of a filesystem adapter for the SimpleImage class.
  * 

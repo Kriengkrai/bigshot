@@ -14,6 +14,10 @@
  * limitations under the License. 
  */
 
+#include Browser.js
+#include DataLoader.js
+#include Object.js
+
 /**
  * Creates a new data loader.
  *

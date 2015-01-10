@@ -14,6 +14,11 @@
  * limitations under the License. 
  */
 
+#include Browser.js
+#include LRUMap.js
+#include Object.js
+#include VRTileCache.js
+
 /**
  * Creates a new cache instance.
  *

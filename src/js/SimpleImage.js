@@ -14,6 +14,10 @@
  * limitations under the License. 
  */
 
+#include FileSystem.js
+#include HTMLDivElementLayer.js
+#include ImageBase.js
+#include Object.js
 
 /**
  * Creates a new image viewer. (Note: See {@link bigshot.SimpleImage#dispose} for important information.)

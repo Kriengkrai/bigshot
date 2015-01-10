@@ -14,6 +14,10 @@
  * limitations under the License. 
  */
 
+#include Browser.js
+#include DataLoader.js
+#include Object.js
+
 /**
  * @class Data loader using standard browser functions that maintains
  * an in-memory cache of everything loaded.

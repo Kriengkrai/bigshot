@@ -14,6 +14,16 @@
  * limitations under the License. 
  */
 
+#include Browser.js
+#include CSS3DVRRenderer.js
+#include EventDispatcher.js
+#include FullScreen.js
+#include Object.js
+#include VREvent.js
+#include VRFace.js
+#include WebGLUtil.js
+#include WebGLVRRenderer.js
+
 /**
  * Creates a new VR panorama in a canvas. <b>Requires WebGL or CSS3D support.</b>
  * (Note: See {@link bigshot.VRPanorama#dispose} for important information.)

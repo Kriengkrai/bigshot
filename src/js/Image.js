@@ -14,6 +14,11 @@
  * limitations under the License. 
  */
 
+#include FileSystem.js
+#include ImageBase.js
+#include ImageTileCache.js
+#include Object.js
+#include TileLayer.js
 
 /**
  * Creates a new tiled image viewer. (Note: See {@link bigshot.ImageBase#dispose} for important information.)

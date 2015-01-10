@@ -64,6 +64,11 @@ bigshot.FileSystem.prototype = {
     getPosterFilename : function () {}
 };
 
+#include ArchiveFileSystem.js
+#include DeepZoomImageFileSystem.js
+#include FolderFileSystem.js
+#include SimpleFileSystem.js
+
 /**
  * Sets up a filesystem instance in the given parameters object, if none exist.
  * If the {@link bigshot.ImageParameters#fileSystem} member isn't set, the 

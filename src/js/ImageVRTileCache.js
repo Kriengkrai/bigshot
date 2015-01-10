@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
+
+#include ImageTileCache.js
+#include Object.js
+#include VRTileCache.js
     
 /**
  * @class A VR tile cache backed by a {@link bigshot.ImageTileCache}.

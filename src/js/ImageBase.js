@@ -14,6 +14,12 @@
  * limitations under the License. 
  */
 
+#include Browser.js
+#include EventDispatcher.js
+#include FullScreen.js
+#include ImageEvent.js
+#include Object.js
+
 
 /**
  * Sets up base image functionality.

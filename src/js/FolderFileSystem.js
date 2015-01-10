@@ -14,6 +14,11 @@
  * limitations under the License. 
  */
 
+#include AbstractFileSystem.js
+#include Browser.js
+#include FileSystem.js
+#include Object.js
+
 /**
  * Creates a new instance of a folder-based filesystem adapter.
  *
