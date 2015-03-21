@@ -250,4 +250,34 @@ public class ImagePyramidParameters extends TreeMap<String,String> {
         bottomCap
         Set to true to attempt to fill in the missing bottom-section of VR panoramas where the map doesn't go all the way to nadir.
         ;
+    
+    @FLOAT
+        subsampleSharpenRadius
+        Radius (in pixels) of the unsharp mask filter to apply before each image pyramid shrinking step. Set to zero or below to disable.
+        ;
+    
+    @FLOAT
+        subsampleSharpenIntensity
+        Alpha value of the unsharp mask filter.
+        ;
+    
+    @INTEGER
+        subsampleSharpenThreshold
+        Threshold between the sharpened and original image in levels before sharpening is applied.
+        ;
+    
+    @FLOAT
+        sharpenRadius
+        Radius (in pixels) of the unsharp mask filter to apply after projecting the cube map to a face. Set to zero or below to disable.
+        ;
+    
+    @FLOAT
+        sharpenIntensity
+        Alpha value of the unsharp mask filter.
+        ;
+    
+    @INTEGER
+        sharpenThreshold
+        Threshold between the sharpened and original image in levels before sharpening is applied.
+        ;
 }
