@@ -206,12 +206,6 @@
     </target>
     
     <target name="build-vr">
-        <!--
-        <mkdir dir="${temp}/vr.bigshot"/>
-        <delete includeEmptyDirs="true">
-        <fileset dir="${temp}/vr.bigshot"/>
-        </delete>
-        -->
         <java fork="yes" jar="${package-dir}/bigshot.jar"
             dir="${basedir}">
             <arg value="${basedir}/test/vr-sample.jpg"/>
@@ -230,18 +224,18 @@
             
             <arg value="--jpeg-poster-blur"/>
             <arg value="16"/>
+                        
+            <arg value="--sharpen-radius"/>
+            <arg value="1"/>
+            
+            <arg value="--subsample-sharpen-radius"/>
+            <arg value="2"/>
             
             <jvmarg value="-Xmx1224M"/>
         </java>
     </target>
     
     <target name="build-cylinder-vr">
-        <!--
-        <mkdir dir="${temp}/vr.bigshot"/>
-        <delete includeEmptyDirs="true">
-        <fileset dir="${temp}/vr.bigshot"/>
-        </delete>
-        -->
         <java fork="yes" jar="${package-dir}/bigshot.jar"
             dir="${basedir}">
             <arg value="${basedir}/test/cyl-sample.jpg"/>
@@ -269,14 +263,8 @@
             <jvmarg value="-Xmx1224M"/>
         </java>
     </target>
-    
+        
     <target name="build-mars-vr">
-        <!--
-        <mkdir dir="${temp}/vr.bigshot"/>
-        <delete includeEmptyDirs="true">
-        <fileset dir="${temp}/vr.bigshot"/>
-        </delete>
-        -->
         <java fork="yes" jar="${package-dir}/bigshot.jar"
             dir="${basedir}">
             <arg value="${basedir}/test/mars-sample.jpg"/>
@@ -372,12 +360,6 @@
     </target>
     
     <target name="test-hires">
-        <!--
-        <mkdir dir="${temp}/vr.bigshot"/>
-        <delete includeEmptyDirs="true">
-        <fileset dir="${temp}/vr.bigshot"/>
-        </delete>
-        -->
         <java fork="yes" jar="${package-dir}/bigshot.jar"
             dir="${basedir}">
             <arg value="${basedir}/test/vr-sample.jpg"/>

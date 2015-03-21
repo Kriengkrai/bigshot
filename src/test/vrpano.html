@@ -234,6 +234,8 @@
                 if ("adaptive" == mode) {
                     bvr.addRenderListener (lodMonitor.getListener ());
                     lodMonitor.setEnabled (true);
+                } else if ("mag3" == mode) {
+                    bvr.setMaxTextureMagnification (3);
                 } else if ("mag1" == mode) {
                     bvr.setMaxTextureMagnification (1);
                 } else if ("mag0" == mode) {
@@ -255,7 +257,7 @@
         <div style="background:black; height:400px; width:100%;" id="outerContainer">
             <div style="background:black; height:400px;" id="container">
                 <div style="width:0px; height:0px; position:absolute; z-index:1;">
-                    <div class="hotspot" id="hotspot" style="text-align:center; width:1px;"
+                    <div class="hotspot" id="hotspot" style="text-align:center; width:1px; display:none;"
                         onclick="alert('Clicked on hotspot!');">
                         <div style="position:absolute; left: 50%; top:100%;">
                             <div class="hotspot_label" style="position:absolute; width:30em; left: -15em; top: 16px; text-align:center">
@@ -265,7 +267,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="hotspot" id="hotspot2" style="border: none; text-align:center; width:32px; height:32px;"><img src="hotspot-image.png"/></div>
+                    <div class="hotspot" id="hotspot2" style="border: none; text-align:center;  display:none; width:32px; height:32px;"><img src="hotspot-image.png"/></div>
                 </div>
                 <div style="width:0px; left:50%; height:0px; position:absolute; top:50%; z-index:1;">
                     <div style="width:32px; height:32px; position: relative; border-top:1px solid red; border-left:1px solid red; display:none">&#160;</div>
@@ -293,9 +295,12 @@
                             Quality mode:
                         </td>
                         <td>
-                            <input type="radio" name="qualityMode" value="adaptive" onchange="qualityMode ('adaptive');" checked="true"/> Adaptive
-                            <input type="radio" name="qualityMode" value="mag1" onchange="qualityMode ('mag1');"/> 100%
-                            <input type="radio" name="qualityMode" value="mag0" onchange="qualityMode ('mag0');"/> Maximum
+                            <select onchange="qualityMode (this.value);">
+                                <option value="adaptive" selected="true">Adaptive</option>
+                                <option value="mag1">25%</option>
+                                <option value="mag1">100%</option>
+                                <option value="mag0">Maximum</option>
+                            </select>
                         </td>
                         <td style="padding-left:32px">
                             Looking:

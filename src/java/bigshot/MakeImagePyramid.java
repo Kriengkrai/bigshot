@@ -223,12 +223,6 @@ public class MakeImagePyramid {
             writeImage (image, output, quality);
         }
         
-        private double gaussianValueAt (int x, int size) {
-            double sigma = size / 3.0;
-            double factor = 1 / (Math.sqrt (2 * Math.PI) * sigma);
-            return factor * Math.exp (-(x * x) / (2 * sigma * sigma));
-        }
-        
         private BufferedImage prepareForBlur (BufferedImage image) throws Exception {
             BufferedImage newImage = new BufferedImage(
                 image.getWidth () + posterBlur,
@@ -247,14 +241,10 @@ public class MakeImagePyramid {
         public void writePoster (BufferedImage image, File output) throws Exception {
             if (posterBlur > 0) {
                 float[] blurKernel = new float[posterBlur];
-                float sum = 0.0f;
                 for (int i = 0; i < blurKernel.length; i++) {
-                    blurKernel[i] = (float) gaussianValueAt (i - blurKernel.length / 2, blurKernel.length / 2);
-                    sum += blurKernel[i];
+                    blurKernel[i] = (float) MathUtil.kernelGaussianValueAt (i - blurKernel.length / 2, blurKernel.length / 2);
                 }
-                for (int i = 0; i < blurKernel.length; i++) {
-                    blurKernel[i] /= sum;
-                }
+                MathUtil.normalizeKernel (blurKernel);
                 
                 BufferedImageOp opW = new ConvolveOp (new Kernel (posterBlur, 1, blurKernel), ConvolveOp.EDGE_ZERO_FILL, null);
                 BufferedImageOp opH = new ConvolveOp (new Kernel (1, posterBlur, blurKernel), ConvolveOp.EDGE_ZERO_FILL, null);
@@ -490,12 +480,22 @@ public class MakeImagePyramid {
                 pyramidBase.mkdirs ();
             }
             
+            UnsharpMask unsharpMask = null;
+            float sharpenRadius = parameters.optSharpenRadius (-1);
+            if (sharpenRadius > 0) {
+                unsharpMask = new UnsharpMask (sharpenRadius, parameters.optSharpenIntensity (1.0f), parameters.optSharpenThreshold (2));
+            }
+            
             for (Future<Image> face : xform.transformToFaces ()) {
                 Image img = face.get ();
                 System.out.println ("Making pyramid for " + img.getName ());
                 File out = new File (pyramidBase, img.getName ());
                 BufferedImage buffered = img.toBuffered ();
                 img = null;
+                
+                if (unsharpMask != null) {
+                    unsharpMask.apply (buffered);
+                }
                 
                 makePyramid (buffered, out, parameters);
             }
@@ -542,7 +542,17 @@ public class MakeImagePyramid {
                 .jitter (jitter)
                 .transform ();
             
-            output.write (outImage.toBuffered (), outputBase);
+            BufferedImage bufferedImage = outImage.toBuffered ();
+            outImage = null;
+            
+            UnsharpMask unsharpMask = null;
+            float sharpenRadius = parameters.optSharpenRadius (-1);
+            if (sharpenRadius > 0) {
+                unsharpMask = new UnsharpMask (sharpenRadius, parameters.optSharpenIntensity (1.0f), parameters.optSharpenThreshold (2));
+                unsharpMask.apply (bufferedImage);
+            }
+            
+            output.write (bufferedImage, outputBase);
         } else {
             makePyramid (input, outputBase, parameters);
         }
@@ -714,6 +724,14 @@ public class MakeImagePyramid {
         
         int overlap = parameters.optOverlap (0);
         System.out.println ("Creating pyramid with " + maxZoom + " levels.");
+        
+        UnsharpMask unsharpMask = null;
+        
+        float sharpenRadius = parameters.optSubsampleSharpenRadius (-1);
+        if (sharpenRadius > 0) {
+            unsharpMask = new UnsharpMask (sharpenRadius, parameters.optSubsampleSharpenIntensity (1.0f), parameters.optSubsampleSharpenThreshold (2));
+        }
+        
         for (int zoom = 0; zoom < maxZoom; ++zoom) {
             File outputDir = 
                 ImagePyramidParameters.LevelNumbering.INVERT == parameters.levelNumbering ()
@@ -728,10 +746,13 @@ public class MakeImagePyramid {
             h = (h - overlap) / 2 + overlap;
             
             if (zoom < maxZoom - 1) {
-                //System.out.println ("Reducing by factor of 2...");
-                
                 BufferedImage reduced = new BufferedImage (w, h, BufferedImage.TYPE_INT_RGB);
                 Graphics2D g = reduced.createGraphics ();
+                
+                if (unsharpMask != null) {
+                    unsharpMask.apply (full);
+                }   
+                
                 g.drawImage (full.getScaledInstance (w, h, java.awt.Image.SCALE_AREA_AVERAGING), 0, 0, null);
                 g.dispose ();
                 full = reduced;
